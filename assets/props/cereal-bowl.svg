@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 180" role="img" aria-labelledby="title desc">
+  <title id="title">Bowl of cereal</title>
+  <desc id="desc">A bright cereal bowl with milk and colorful cereal pieces.</desc>
+  <defs>
+    <linearGradient id="bowlOuter" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FF7C6A"/>
+      <stop offset="100%" stop-color="#F25545"/>
+    </linearGradient>
+    <linearGradient id="bowlInner" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFF7E8"/>
+      <stop offset="100%" stop-color="#FFF0D6"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="110" cy="64" rx="68" ry="22" fill="url(#bowlInner)" stroke="#A94639" stroke-width="8"/>
+  <path d="M42 64h136c0 44-26 78-68 78S42 108 42 64Z" fill="url(#bowlOuter)" stroke="#A94639" stroke-width="8" stroke-linejoin="round"/>
+  <ellipse cx="110" cy="64" rx="68" ry="22" fill="url(#bowlInner)" stroke="#A94639" stroke-width="8"/>
+  <circle cx="82" cy="57" r="10" fill="#FFC44D"/>
+  <circle cx="110" cy="52" r="11" fill="#7CD957"/>
+  <circle cx="136" cy="58" r="9" fill="#57A5FF"/>
+  <circle cx="95" cy="68" r="8" fill="#FF7DB5"/>
+  <circle cx="125" cy="67" r="8" fill="#FFD86B"/>
+  <circle cx="153" cy="53" r="8" fill="#9F7CFF"/>
+  <path d="M66 96c18 9 70 11 88 0" stroke="#FFF5DE" stroke-width="8" stroke-linecap="round" opacity=".7"/>
+  <ellipse cx="92" cy="44" rx="12" ry="6" fill="#FFFFFF" opacity=".5"/>
+</svg>

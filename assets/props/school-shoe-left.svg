@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 110" role="img" aria-labelledby="title desc">
+  <title id="title">Left school shoe</title>
+  <desc id="desc">A black school shoe with a thick sole and simple laces.</desc>
+  <defs>
+    <linearGradient id="shoeBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#44484E"/>
+      <stop offset="100%" stop-color="#17191D"/>
+    </linearGradient>
+    <linearGradient id="sole" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5E636B"/>
+      <stop offset="100%" stop-color="#2B2F35"/>
+    </linearGradient>
+  </defs>
+  <path d="M30 72c16 0 31-4 44-14l20-15c10-8 20-12 34-12h8c8 0 14 6 16 14l6 24c2 8-4 15-12 15H42c-17 0-28-5-28-12 0-6 5-10 16-10Z" fill="url(#shoeBody)" stroke="#0B0C0E" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M14 82h140c12 0 22 7 22 16H36c-14 0-22-7-22-16Z" fill="url(#sole)" stroke="#0B0C0E" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M88 44h32" stroke="#CED4DD" stroke-width="6" stroke-linecap="round"/>
+  <path d="M84 54h40" stroke="#CED4DD" stroke-width="6" stroke-linecap="round"/>
+  <path d="M54 74c10 2 32 2 44-2" stroke="#70757D" stroke-width="5" stroke-linecap="round" opacity=".55"/>
+</svg>
