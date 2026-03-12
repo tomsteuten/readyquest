@@ -1,0 +1,2305 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>ReadyQuest</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Fredoka', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #FFF8E7 0%, #FFE5B4 100%);
+            touch-action: manipulation;
+            overflow: hidden;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .screen {
+            display: none;
+            min-height: 100vh;
+            max-height: 100vh;
+            padding: 10px;
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* === SETUP SCREEN === */
+        .setup-screen {
+            position: relative;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .settings-trigger {
+            position: absolute;
+            left: 16px;
+            bottom: 16px;
+            width: 52px;
+            height: 52px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            color: #8a4b22;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.4;
+            cursor: pointer;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .settings-trigger:active {
+            transform: scale(0.95);
+        }
+
+        .settings-trigger.visible-hint,
+        .settings-trigger:hover {
+            opacity: 0.75;
+        }
+
+        .settings-trigger-tooltip {
+            position: absolute;
+            left: 16px;
+            bottom: 76px;
+            padding: 10px 14px;
+            border-radius: 14px;
+            background: rgba(34, 34, 34, 0.88);
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            opacity: 0;
+            transform: translateY(8px);
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .settings-trigger-tooltip.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .dev-mode-badge {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            display: none;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(34, 34, 34, 0.9);
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            z-index: 5;
+        }
+
+        .dev-mode-badge.visible {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .app-title {
+            font-size: 56px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #FF6B35 0%, #F39C12 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .setup-button {
+            padding: 28px 60px;
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #FF6B35 0%, #F39C12 100%);
+            color: white;
+            border: none;
+            border-radius: 22px;
+            cursor: pointer;
+            box-shadow: 0 12px 35px rgba(255, 107, 53, 0.5), 0 0 0 1px rgba(255,255,255,0.3) inset;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .setup-button:active {
+            transform: scale(0.96) translateY(2px);
+            box-shadow: 0 6px 25px rgba(255, 107, 53, 0.5);
+        }
+
+        /* === GAME SCREEN === */
+        .game-screen {
+            justify-content: flex-start;
+            align-items: center;
+            padding: 0;
+            gap: 0;
+            overflow: hidden;
+            box-sizing: border-box;
+            background: linear-gradient(135deg, #FF9A9E 0%, #FAD0C4 50%, #FBC2EB 100%);
+        }
+
+        .streak-counter {
+            text-align: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: #FF6B35;
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+            padding: 8px 16px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: inline-block;
+            position: relative;
+            z-index: 2;
+        }
+
+        .game-screen > .streak-counter {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            margin: 0;
+        }
+
+        .streak-number {
+            font-size: 28px;
+            display: block;
+            margin-top: 3px;
+            background: linear-gradient(135deg, #FF6B35, #F39C12);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .task-card {
+            background: transparent;
+            border-radius: 0;
+            padding: 20px 20px 0;
+            box-shadow: none;
+            max-width: none;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            min-height: unset;
+            max-height: none;
+            flex: 1 1 0;
+            transition: transform 0.3s ease;
+        }
+
+        .progress-dots {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .dot.completed {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+            transform: scale(1.1);
+            border-color: white;
+        }
+
+        .dot.active {
+            background: white;
+            transform: scale(1.4);
+            box-shadow: 0 4px 16px rgba(255, 255, 255, 0.6), 0 0 0 3px rgba(255, 255, 255, 0.3);
+            border-color: transparent;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 4px 16px rgba(255, 255, 255, 0.6), 0 0 0 3px rgba(255, 255, 255, 0.3); }
+            50% { box-shadow: 0 4px 20px rgba(255, 255, 255, 0.8), 0 0 0 6px rgba(255, 255, 255, 0.2); }
+        }
+
+        /* MASCOT */
+        .mascot-stage {
+            --stage-size: clamp(220px, 40vh, 320px);
+            position: absolute;
+            bottom: clamp(80px, 12vh, 120px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: var(--stage-size);
+            height: var(--stage-size);
+            aspect-ratio: 1 / 1;
+            overflow: visible;
+            z-index: 1;
+        }
+
+        .mascot-container {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            animation: mascotBreathe 3s ease-in-out infinite;
+            background: transparent;
+            transform-origin: center bottom;
+        }
+
+        .mascot-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: transparent;
+        }
+
+        @keyframes mascotBreathe {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(1.06); }
+        }
+
+        /* PROPS */
+        .prop {
+            position: relative;
+            z-index: 5;
+            display: none;
+            pointer-events: none;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
+            width: auto;
+            height: auto;
+            transform-origin: center center;
+        }
+
+        .prop.visible {
+            display: block;
+        }
+
+        .prop-anchor {
+            position: absolute;
+            z-index: 5;
+            pointer-events: none;
+            left: var(--anchor-x, 50%);
+            top: var(--anchor-y, 50%);
+            transform: translate(
+                calc(-50% + var(--nudge-x, 0px)),
+                calc(-50% + var(--nudge-y, 0px))
+            );
+        }
+
+        .debug-mode .prop-anchor {
+            pointer-events: auto;
+        }
+
+        .debug-mode .prop-anchor::before,
+        .debug-mode .prop-anchor::after {
+            content: '';
+            position: absolute;
+            background: rgba(0, 191, 255, 0.75);
+            pointer-events: none;
+        }
+
+        .debug-mode .prop-anchor::before {
+            width: 2px;
+            height: 28px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .debug-mode .prop-anchor::after {
+            width: 28px;
+            height: 2px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .debug-mode .prop-anchor.debug-selected::before,
+        .debug-mode .prop-anchor.debug-selected::after {
+            background: rgba(255, 99, 71, 0.95);
+        }
+
+        .debug-mode .prop-anchor.debug-selected {
+            outline: 2px dashed rgba(255, 99, 71, 0.9);
+            outline-offset: 6px;
+        }
+
+        .debug-mode .prop.debug-force-visible {
+            display: block !important;
+        }
+
+        .prop-debug-panel {
+            position: fixed;
+            right: 12px;
+            top: 12px;
+            width: min(320px, calc(100vw - 24px));
+            padding: 14px;
+            border-radius: 18px;
+            background: rgba(28, 32, 44, 0.92);
+            color: #fff;
+            box-shadow: 0 14px 40px rgba(0,0,0,0.35);
+            z-index: 999;
+            display: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .prop-debug-panel.visible {
+            display: block;
+        }
+
+        .prop-debug-panel h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .prop-debug-panel p {
+            font-size: 12px;
+            line-height: 1.35;
+            color: rgba(255,255,255,0.82);
+            margin-bottom: 10px;
+        }
+
+        .prop-debug-row {
+            display: grid;
+            grid-template-columns: 70px 1fr 62px;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .prop-debug-row label,
+        .prop-debug-field label {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .prop-debug-row input,
+        .prop-debug-row select,
+        .prop-debug-field textarea,
+        .prop-debug-field input {
+            width: 100%;
+            font: inherit;
+        }
+
+        .prop-debug-row input[type="range"] {
+            accent-color: #5dd0ff;
+        }
+
+        .prop-debug-row input[type="number"],
+        .prop-debug-row select,
+        .prop-debug-field textarea,
+        .prop-debug-field input {
+            border: none;
+            border-radius: 10px;
+            padding: 8px 10px;
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+        }
+
+        .prop-debug-row select option {
+            color: #111;
+        }
+
+        .prop-debug-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .prop-debug-button {
+            flex: 1;
+            padding: 10px 12px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            background: linear-gradient(135deg, #5dd0ff, #2f9fff);
+            color: #0b2133;
+        }
+
+        .prop-debug-button.secondary {
+            background: rgba(255,255,255,0.14);
+            color: #fff;
+        }
+
+        .prop-debug-field {
+            margin-top: 10px;
+        }
+
+        .prop-debug-field textarea {
+            min-height: 130px;
+            resize: vertical;
+            line-height: 1.35;
+        }
+
+        .prop-debug-hint {
+            font-size: 11px;
+            color: rgba(255,255,255,0.72);
+            margin-top: 8px;
+        }
+
+        .prop-anchor-clothes {
+            --anchor-x: 52.2%;
+            --anchor-y: 52.7%;
+            --nudge-x: 0px;
+            --nudge-y: 17px;
+        }
+
+        .prop-anchor-breakfast {
+            --anchor-x: 56.0%;
+            --anchor-y: 60.0%;
+            --nudge-x: 28px;
+            --nudge-y: -13px;
+        }
+
+        .prop-anchor-toothbrush {
+            --anchor-x: 58.0%;
+            --anchor-y: 61.0%;
+            --nudge-x: -17px;
+            --nudge-y: -19px;
+        }
+
+        .prop-anchor-shoes {
+            --anchor-x: 46.0%;
+            --anchor-y: 63.0%;
+            --nudge-x: -10px;
+            --nudge-y: 3px;
+        }
+
+        .prop-anchor-shoes2 {
+            --anchor-x: 64%;
+            --anchor-y: 63.0%;
+            --nudge-x: 0px;
+            --nudge-y: 3px;
+        }
+
+        .prop.clothes {
+            width: calc(var(--stage-size) * 0.38);
+            animation: clothes-slide 1.5s ease-in-out infinite;
+        }
+
+        .prop.breakfast {
+            width: calc(var(--stage-size) * 0.34);
+            animation: breakfast-tilt 2s ease-in-out infinite;
+        }
+
+        .prop.toothbrush {
+            width: calc(var(--stage-size) * 0.3);
+            animation: brush 1s ease-in-out infinite;
+        }
+
+        .prop.shoes {
+            width: calc(var(--stage-size) * 0.27);
+            animation: shoes-walk 1.2s ease-in-out infinite;
+        }
+
+        @keyframes clothes-slide {
+            0%, 100% { transform: translateX(-80px); opacity: 0.7; }
+            50%      { transform: translateX(0px);   opacity: 1; }
+        }
+
+        @keyframes breakfast-tilt {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(-8deg) translateY(-3px); }
+        }
+
+        @keyframes brush {
+            0%, 100% { transform: rotate(-10deg) translateX(0px); }
+            50% { transform: rotate(10deg) translateX(5px); }
+        }
+
+        @keyframes shoes-walk {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        @keyframes shoes-walk-mirrored {
+            0%, 100% { transform: scaleX(-1) translateY(0px); }
+            50%      { transform: scaleX(-1) translateY(-5px); }
+        }
+
+        .task-instruction {
+            font-size: 36px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 3px 10px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+            margin-bottom: 8px;
+            margin-top: 40px;
+            position: relative;
+            z-index: 10;
+            letter-spacing: -0.5px;
+        }
+
+        .task-description {
+            font-size: 20px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 15px;
+            line-height: 1.4;
+            position: relative;
+            z-index: 10;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .action-button {
+            padding: 20px 36px;
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #f8f8f8 100%);
+            color: #FF6B35;
+            border: none;
+            border-radius: 18px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.9) inset;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            top: auto;
+            transform: translateX(-50%);
+            width: calc(100% - 48px);
+            max-width: 400px;
+            z-index: 20;
+            text-shadow: 0 1px 2px rgba(255, 107, 53, 0.1);
+            touch-action: manipulation;
+            animation: buttonBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+        }
+
+        .action-button:active {
+            transform: translateX(-50%) scale(0.96) translateY(2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .action-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: translateX(-50%);
+        }
+
+        @keyframes buttonBounce {
+            from {
+                transform: translateX(-50%) scale(0.85) translateY(8px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* TIMER */
+        .timer-display {
+            font-size: 54px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2);
+            margin: 15px 0;
+            position: relative;
+            z-index: 10;
+            letter-spacing: 3px;
+            animation: timerPulse 1s ease-in-out infinite;
+        }
+
+        .timer-display.timer-complete {
+            color: #90EE90;
+            text-shadow: 0 4px 12px rgba(144, 238, 144, 0.5), 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .timer-display.timer-complete::after {
+            content: ' ✓';
+            font-size: 36px;
+        }
+
+        .timer-relaxed-message {
+            font-size: 24px;
+            font-weight: 600;
+            color: white;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            margin: 15px 0;
+            position: relative;
+            z-index: 10;
+        }
+
+        @keyframes timerPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* CELEBRATION */
+        .celebration {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 140px;
+            animation: celebrate 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 100;
+            filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.8));
+        }
+
+        @keyframes celebrate {
+            0% { 
+                transform: translate(-50%, -50%) scale(0) rotate(-180deg);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.3) rotate(10deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        /* COMPLETION SCREEN */
+        .completion-screen {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            gap: clamp(15px, 3vh, 35px);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            /* Ensure content stays within viewport */
+            max-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .completion-screen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 107, 53, 0.1), transparent 70%);
+            animation: bgPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes bgPulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        .completion-title {
+            font-size: clamp(32px, 7vw, 56px);
+            font-weight: 700;
+            background: linear-gradient(135deg, #FF6B35 0%, #F39C12 50%, #FF6B35 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 4px 20px rgba(255, 107, 53, 0.3));
+            animation: titleBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            z-index: 1;
+            flex-shrink: 0;
+        }
+
+        @keyframes titleBounce {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .completion-message {
+            font-size: clamp(18px, 4vw, 28px);
+            font-weight: 600;
+            color: #333;
+            max-width: 90%;
+            line-height: 1.4;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 10px rgba(255,255,255,0.8);
+            flex-shrink: 1;
+        }
+
+        .completion-screen .streak-counter {
+            background: linear-gradient(135deg, #FFE5B4 0%, #FFD700 100%);
+            padding: clamp(15px, 3vh, 25px) clamp(25px, 5vw, 45px);
+            border-radius: 25px;
+            box-shadow: 0 10px 35px rgba(255, 215, 0, 0.4), 0 0 0 1px rgba(255,255,255,0.5) inset;
+            position: relative;
+            z-index: 1;
+            animation: streakAppear 0.6s 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) backwards;
+            flex-shrink: 0;
+        }
+
+        @keyframes streakAppear {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .reset-button {
+            padding: clamp(16px, 2.5vh, 22px) clamp(35px, 8vw, 55px);
+            font-size: clamp(20px, 4vw, 26px);
+            font-weight: 700;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            border-radius: 22px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(76, 175, 80, 0.4), 0 0 0 1px rgba(255,255,255,0.3) inset;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+            margin-bottom: env(safe-area-inset-bottom, 0);
+        }
+
+        .reset-button:active {
+            transform: scale(0.96) translateY(2px);
+            box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .completion-mascot {
+            width: clamp(140px, 28vh, 220px);
+            height: clamp(140px, 28vh, 220px);
+            position: relative;
+            z-index: 1;
+            flex-shrink: 0;
+            animation: mascotCelebrate 0.8s ease-out, completionBob 2.5s ease-in-out 0.8s infinite;
+        }
+
+        .completion-mascot-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 8px 20px rgba(0,0,0,0.15));
+        }
+
+        @keyframes mascotCelebrate {
+            0% {
+                transform: translateY(14px) scale(0.9);
+                opacity: 0;
+            }
+            60% {
+                transform: translateY(-10px) scale(1.05);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes completionBob {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(3deg); }
+        }
+
+        /* Confetti animation */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #FF6B35;
+            animation: confettiFall 3s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes confettiFall {
+            0% { 
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% { 
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* ERROR MESSAGE */
+        .error-message {
+            color: white;
+            background: linear-gradient(135deg, rgba(244, 67, 54, 0.95), rgba(211, 47, 47, 0.95));
+            padding: 18px 25px;
+            border-radius: 15px;
+            margin-top: 25px;
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 6px 20px rgba(244, 67, 54, 0.3);
+            font-weight: 600;
+            animation: errorShake 0.4s ease-in-out;
+        }
+
+        @keyframes errorShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        .toast-notification {
+            position: fixed;
+            left: 50%;
+            bottom: 24px;
+            transform: translateX(-50%) translateY(16px);
+            padding: 12px 18px;
+            border-radius: 14px;
+            background: rgba(28, 28, 28, 0.92);
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            z-index: 100;
+        }
+
+        .toast-notification.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .settings-screen {
+            background: linear-gradient(180deg, #fff8e7 0%, #ffe8c2 100%);
+            padding: 18px 16px 24px;
+            overflow-y: auto;
+            gap: 16px;
+        }
+
+        .settings-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+
+        .settings-title {
+            font-size: 34px;
+            font-weight: 700;
+            color: #cf5a19;
+        }
+
+        .settings-save-button,
+        .settings-reset-button {
+            border: none;
+            border-radius: 18px;
+            padding: 14px 18px;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .settings-save-button {
+            background: linear-gradient(135deg, #ff6b35 0%, #f39c12 100%);
+            color: white;
+            box-shadow: 0 10px 24px rgba(255, 107, 53, 0.28);
+        }
+
+        .settings-reset-button {
+            width: 100%;
+            background: white;
+            color: #cf5a19;
+            border: 2px solid rgba(255, 107, 53, 0.25);
+        }
+
+        .settings-card {
+            background: rgba(255, 255, 255, 0.94);
+            border-radius: 22px;
+            padding: 18px;
+            box-shadow: 0 10px 28px rgba(204, 122, 35, 0.12);
+        }
+
+        .settings-section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #cf5a19;
+            margin-bottom: 14px;
+        }
+
+        .settings-field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .settings-field:last-child {
+            margin-bottom: 0;
+        }
+
+        .settings-label {
+            font-size: 15px;
+            font-weight: 700;
+            color: #8a4b22;
+        }
+
+        .settings-input,
+        .settings-select,
+        .task-duration-input {
+            width: 100%;
+            border: 2px solid rgba(255, 107, 53, 0.18);
+            border-radius: 16px;
+            padding: 14px 16px;
+            font-family: inherit;
+            font-size: 16px;
+            background: #fffdf9;
+            color: #4a3324;
+        }
+
+        .settings-task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .settings-task-row {
+            background: #fff9f1;
+            border: 1px solid rgba(255, 107, 53, 0.12);
+            border-radius: 18px;
+            padding: 14px;
+        }
+
+        .settings-task-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .settings-task-name {
+            font-size: 17px;
+            font-weight: 700;
+            color: #7a3e18;
+        }
+
+        .settings-checkbox {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #8a4b22;
+        }
+
+        .settings-checkbox input {
+            width: 18px;
+            height: 18px;
+            accent-color: #ff6b35;
+        }
+
+        .task-duration-preview {
+            margin-top: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #a55f2f;
+        }
+
+        .settings-empty-state {
+            font-size: 16px;
+            font-weight: 600;
+            color: #8a4b22;
+            text-align: center;
+            padding: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- SETUP SCREEN -->
+    <div class="screen active setup-screen">
+        <div class="dev-mode-badge" id="devModeBadge">DEV MODE</div>
+        <h1 class="app-title" id="appTitle">ReadyQuest</h1>
+        <button class="setup-button" onclick="startMorning()"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;display:inline-block;margin-right:6px"><circle cx="12" cy="14" r="5" fill="#FFD700"/><path d="M12 3v3M4.22 7.22l2.12 2.12M1 14h3M4.22 20.78l2.12-2.12M12 25v-3M19.78 20.78l-2.12-2.12M23 14h-3M19.78 7.22l-2.12 2.12" stroke="#FF8C00" stroke-width="2" stroke-linecap="round"/><path d="M2 19h20" stroke="#FF6B35" stroke-width="2" stroke-linecap="round"/></svg> Start Morning!</button>
+        <div class="settings-trigger-tooltip" id="settingsTriggerTooltip">Hold to open...</div>
+        <button class="settings-trigger" id="settingsTrigger" type="button" aria-label="Open settings">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.18 7.18 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.58.22-1.12.53-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.13.22.39.31.6.22l2.39-.96c.51.41 1.05.72 1.63.94l.36 2.54c.04.24.25.42.5.42h3.84c.25 0 .46-.18.5-.42l.36-2.54c.58-.22 1.12-.53 1.63-.94l2.39.96c.22.09.47 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7Z" fill="currentColor"/></svg>
+        </button>
+    </div>
+
+    <div class="screen settings-screen">
+        <div class="settings-header">
+            <div class="settings-title">Settings</div>
+            <button class="settings-save-button" id="saveSettingsButton" type="button">Save &amp; Close</button>
+        </div>
+
+        <div class="settings-card">
+            <div class="settings-section-title">Profile</div>
+            <div class="settings-field">
+                <label class="settings-label" for="childNameInput">Child's Name</label>
+                <input class="settings-input" id="childNameInput" type="text" placeholder="Your child's name">
+            </div>
+            <div class="settings-field">
+                <label class="settings-label" for="timerStyleSelect">Timer Style</label>
+                <select class="settings-select" id="timerStyleSelect">
+                    <option value="countdown">Countdown (3:00 → 0:00)</option>
+                    <option value="countup">Count Up (0:00 → 3:00)</option>
+                    <option value="hidden">Hidden (no timer)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <div class="settings-section-title">Tasks</div>
+            <div class="settings-task-list" id="settingsTaskList"></div>
+        </div>
+
+        <button class="settings-reset-button" id="resetSettingsButton" type="button">Reset to Defaults</button>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div class="screen game-screen">
+        <div class="streak-counter">
+            <svg width="20" height="20" viewBox="0 0 24 24" style="vertical-align:middle;display:inline-block;margin-right:4px"><path d="M12 23c-4.97 0-9-3.58-9-8 0-3.07 2.31-6.64 4-8 0 3 2 5 4 5-.26-3.9 2-8 5-10 .67 2 2 4.33 3 5 1.47-1.47 2-3.47 2-6 2.5 2.5 4 5.5 4 9 0 4.42-4.03 8-9 8z" fill="#FF6B35"/><path d="M12 23c-2.76 0-5-1.79-5-4 0-1.5 1-3.5 2.5-4.5.5 1 1.5 2 2.5 2s2-1 2.5-2.5C15.5 15.5 17 17.5 17 19c0 2.21-2.24 4-5 4z" fill="#FFD700"/></svg> Current Streak
+            <span class="streak-number" id="streakDisplay">0</span>
+        </div>
+
+        <div class="task-card" id="taskCard">
+            <div class="progress-dots" id="progressDots"></div>
+            
+            <div class="task-instruction" id="taskTitle"></div>
+            <div class="task-description" id="taskDescription"></div>
+            
+            <div id="timerContainer" style="display: none;">
+                <div class="timer-display" id="timerDisplay">90</div>
+                <div class="timer-relaxed-message" id="timerRelaxedMessage" style="display:none;">Take your time! </div>
+            </div>
+
+            <button class="action-button" id="actionButton" onclick="handleAction()">Tap to Start</button>
+            
+            <div class="error-message" id="errorMessage" style="display: none;"></div>
+
+            <!-- Mascot -->
+            <div class="mascot-stage">
+            <div class="mascot-container">
+                <img src="quinnja.png" alt="Quinnja" class="mascot-img">
+            </div>
+
+            <!-- Animated Props -->
+            <div class="prop-anchor prop-anchor-clothes"><img class="prop clothes" src="assets/props/shirt-green-gold.svg" alt="School shirt"></div>
+            <div class="prop-anchor prop-anchor-breakfast"><img class="prop breakfast" src="assets/props/cereal-bowl.svg" alt="Breakfast cereal"></div>
+            <div class="prop-anchor prop-anchor-toothbrush"><img class="prop toothbrush" src="assets/props/toothbrush-blue.svg" alt="Toothbrush"></div>
+            <div class="prop-anchor prop-anchor-shoes"><img class="prop shoes" src="assets/props/school-shoe-left.svg" alt="Left school shoe"></div>
+            <div class="prop-anchor prop-anchor-shoes2"><img id="shoes2" class="prop shoes" src="assets/props/school-shoe-right.svg" alt="Right school shoe"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMPLETION SCREEN -->
+    <div class="screen completion-screen">
+        <div class="completion-mascot">
+            <img src="quinnja.png" alt="Quinnja celebrating" class="completion-mascot-img">
+        </div>
+        <div class="completion-title" id="completionTitle">Amazing Job!</div>
+        <div class="completion-message" id="completionMessage">You're all ready for school!</div>
+        <div class="streak-counter">
+            <svg width="20" height="20" viewBox="0 0 24 24" style="vertical-align:middle;display:inline-block;margin-right:4px"><path d="M12 23c-4.97 0-9-3.58-9-8 0-3.07 2.31-6.64 4-8 0 3 2 5 4 5-.26-3.9 2-8 5-10 .67 2 2 4.33 3 5 1.47-1.47 2-3.47 2-6 2.5 2.5 4 5.5 4 9 0 4.42-4.03 8-9 8z" fill="#FF6B35"/><path d="M12 23c-2.76 0-5-1.79-5-4 0-1.5 1-3.5 2.5-4.5.5 1 1.5 2 2.5 2s2-1 2.5-2.5C15.5 15.5 17 17.5 17 19c0 2.21-2.24 4-5 4z" fill="#FFD700"/></svg> Streak: <span class="streak-number" id="finalStreakDisplay">0</span> days!
+        </div>
+        <button class="reset-button" onclick="resetApp()">Start New Day</button>
+    </div>
+
+    <div class="toast-notification" id="toastNotification"></div>
+
+    <script>
+        const SETTINGS_STORAGE_KEY = 'readyquest-settings';
+
+        const defaultSettings = {
+            childName: "",
+            timerStyle: "countdown",
+            devMode: true,
+            tasks: [
+                { id: "dressed", enabled: true, timerDuration: 180 },
+                { id: "breakfast", enabled: true, timerDuration: 420 },
+                { id: "teeth", enabled: true, timerDuration: 120 },
+                { id: "shoes", enabled: true, timerDuration: 90 }
+            ]
+        };
+
+        let appSettings = null;
+
+        function getSettings() {
+            let storedSettings = {};
+
+            try {
+                storedSettings = JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY) || '{}') || {};
+            } catch (error) {
+                storedSettings = {};
+            }
+
+            const storedTasks = Array.isArray(storedSettings.tasks) ? storedSettings.tasks : [];
+            const mergedTasks = defaultSettings.tasks.map((defaultTask) => {
+                const storedTask = storedTasks.find((task) => task && task.id === defaultTask.id) || {};
+                return {
+                    ...defaultTask,
+                    ...storedTask
+                };
+            });
+
+            return {
+                ...defaultSettings,
+                ...storedSettings,
+                tasks: mergedTasks
+            };
+        }
+
+        function saveSettings(settings) {
+            localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+        }
+
+        function getTaskSettings(taskId) {
+            const sourceSettings = appSettings || defaultSettings;
+            const configuredTask = sourceSettings.tasks.find((task) => task.id === taskId);
+            return configuredTask || defaultSettings.tasks.find((task) => task.id === taskId);
+        }
+
+        function cloneSettings(settings) {
+            return JSON.parse(JSON.stringify(settings));
+        }
+
+        function getEnabledTasks() {
+            return tasks.filter((task) => getTaskSettings(task.id)?.enabled !== false);
+        }
+
+        function formatDuration(totalSeconds) {
+            const safeSeconds = Math.max(0, parseInt(totalSeconds, 10) || 0);
+            const minutes = Math.floor(safeSeconds / 60);
+            const seconds = safeSeconds % 60;
+            return `${minutes}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        function getTimerStyle() {
+            return appSettings?.timerStyle || defaultSettings.timerStyle;
+        }
+
+        function renderTimerValue(timerDisplay, value, duration) {
+            const timerStyle = getTimerStyle();
+
+            if (timerStyle === 'countup') {
+                timerDisplay.textContent = formatDuration(Math.min(value, duration));
+                return;
+            }
+
+            timerDisplay.textContent = formatDuration(value);
+        }
+
+        function getTaskLabel(taskId) {
+            const task = tasks.find((entry) => entry.id === taskId);
+            return task ? task.title.replace(/!$/, '') : taskId;
+        }
+
+        function getTaskAudioIndex(taskId) {
+            return tasks.findIndex((task) => task.id === taskId);
+        }
+
+        function getCompletionMessage() {
+            const name = (appSettings?.childName || '').trim();
+            return name ? `Amazing Job, ${name}!` : 'Amazing Job!';
+        }
+
+        function applyChildNameUI() {
+            const completionMessage = document.getElementById('completionMessage');
+            if (!completionMessage) return;
+
+            const name = (appSettings?.childName || '').trim();
+            completionMessage.textContent = name
+                ? `${name} is all ready for school!`
+                : "You're all ready for school!";
+        }
+
+        function buildDraftSettingsFromForm() {
+            const taskDrafts = defaultSettings.tasks.map((defaultTask) => {
+                const enabledInput = document.querySelector(`[data-task-enabled="${defaultTask.id}"]`);
+                const durationInput = document.querySelector(`[data-task-duration="${defaultTask.id}"]`);
+                const parsedDuration = parseInt(durationInput?.value, 10);
+
+                return {
+                    id: defaultTask.id,
+                    enabled: Boolean(enabledInput?.checked),
+                    timerDuration: Number.isFinite(parsedDuration) && parsedDuration > 0
+                        ? parsedDuration
+                        : defaultTask.timerDuration
+                };
+            });
+
+            return {
+                ...appSettings,
+                childName: document.getElementById('childNameInput').value.trim(),
+                timerStyle: document.getElementById('timerStyleSelect').value,
+                tasks: taskDrafts
+            };
+        }
+
+        function updateTaskDurationPreview(taskId, seconds) {
+            const preview = document.querySelector(`[data-task-preview="${taskId}"]`);
+            if (!preview) return;
+            preview.textContent = `Preview: ${formatDuration(seconds)}`;
+        }
+
+        function renderSettingsPanel() {
+            const taskList = document.getElementById('settingsTaskList');
+            if (!taskList) return;
+
+            document.getElementById('childNameInput').value = appSettings.childName || '';
+            document.getElementById('timerStyleSelect').value = getTimerStyle();
+
+            taskList.innerHTML = '';
+
+            defaultSettings.tasks.forEach((defaultTask) => {
+                const taskSettings = getTaskSettings(defaultTask.id);
+                const row = document.createElement('div');
+                row.className = 'settings-task-row';
+                row.innerHTML = `
+                    <div class="settings-task-head">
+                        <div class="settings-task-name">${getTaskLabel(defaultTask.id)}</div>
+                        <label class="settings-checkbox">
+                            <input type="checkbox" data-task-enabled="${defaultTask.id}" ${taskSettings.enabled ? 'checked' : ''}>
+                            Enabled
+                        </label>
+                    </div>
+                    <div class="settings-field">
+                        <label class="settings-label" for="task-duration-${defaultTask.id}">Duration (seconds)</label>
+                        <input class="task-duration-input" id="task-duration-${defaultTask.id}" type="number" min="1" step="1" value="${taskSettings.timerDuration}" data-task-duration="${defaultTask.id}">
+                        <div class="task-duration-preview" data-task-preview="${defaultTask.id}">Preview: ${formatDuration(taskSettings.timerDuration)}</div>
+                    </div>
+                `;
+                taskList.appendChild(row);
+            });
+
+            taskList.querySelectorAll('[data-task-duration]').forEach((input) => {
+                input.addEventListener('input', () => {
+                    const value = parseInt(input.value, 10);
+                    updateTaskDurationPreview(input.dataset.taskDuration, Number.isFinite(value) && value > 0 ? value : 0);
+                });
+            });
+        }
+
+        function persistSettingsFromPanel() {
+            appSettings = buildDraftSettingsFromForm();
+            appSettings = {
+                ...defaultSettings,
+                ...appSettings,
+                tasks: defaultSettings.tasks.map((defaultTask) => {
+                    const configuredTask = appSettings.tasks.find((task) => task.id === defaultTask.id) || {};
+                    return { ...defaultTask, ...configuredTask };
+                })
+            };
+            saveSettings(appSettings);
+            updateDevModeUI();
+            applyChildNameUI();
+        }
+
+        function openSettingsScreen() {
+            renderSettingsPanel();
+            switchScreen('settings-screen');
+        }
+
+        function closeSettingsScreen() {
+            persistSettingsFromPanel();
+            switchScreen('setup-screen');
+        }
+
+        function resetSettingsToDefaults() {
+            appSettings = cloneSettings(defaultSettings);
+            saveSettings(appSettings);
+            renderSettingsPanel();
+            updateDevModeUI();
+            applyChildNameUI();
+            showToast('Settings reset to defaults');
+        }
+
+        // TASK DEFINITIONS
+        const tasks = [
+            {
+                id: "dressed",
+                title: "Get Dressed!",
+                description: "Put on your school clothes",
+                icon: "shirt",
+                propClass: "clothes",
+                validationType: "nfc_dual",
+                get timerDuration() {
+                    return getTaskSettings(this.id)?.timerDuration ?? 180;
+                },
+                buttonText: "Scan START Tag",
+                finishButtonText: "Scan FINISHED Tag"
+            },
+            {
+                id: "breakfast",
+                title: "Eat Breakfast!",
+                description: "Fuel up for the day",
+                icon: "apple",
+                propClass: "breakfast",
+                validationType: "nfc_dual",
+                get timerDuration() {
+                    return getTaskSettings(this.id)?.timerDuration ?? 420;
+                },
+                buttonText: "Scan START Tag",
+                finishButtonText: "Scan FINISHED Tag"
+            },
+            {
+                id: "teeth",
+                title: "Brush Your Teeth!",
+                description: "Scan the START tag, brush for 60 seconds, then scan FINISHED",
+                icon: "toothbrush",
+                propClass: "toothbrush",
+                validationType: "nfc_dual",
+                get timerDuration() {
+                    return getTaskSettings(this.id)?.timerDuration ?? 120;
+                },
+                buttonText: "Scan START Tag",
+                finishButtonText: "Scan FINISHED Tag"
+            },
+            {
+                id: "shoes",
+                title: "Put On Your Shoes!",
+                description: "Get ready to go!",
+                icon: "sneaker",
+                propClass: "shoes",
+                validationType: "nfc_dual",
+                get timerDuration() {
+                    return getTaskSettings(this.id)?.timerDuration ?? 90;
+                },
+                buttonText: "Scan START Tag",
+                finishButtonText: "Scan FINISHED Tag"
+            }
+        ];
+
+        // STATE
+        let currentTaskIndex = 0;
+        let taskTimer = null;
+        let taskStarted = false;
+        let appTitleTapCount = 0;
+        let appTitleTapTimeout = null;
+        let settingsHoldTimer = null;
+        let settingsOpenedFromHold = false;
+        let toastTimeout = null;
+
+        function isDevModeEnabled() {
+            return Boolean(appSettings?.devMode);
+        }
+
+        function updateDevModeUI() {
+            const devModeBadge = document.getElementById('devModeBadge');
+            if (!devModeBadge) return;
+            devModeBadge.classList.toggle('visible', isDevModeEnabled());
+        }
+
+        function setSettingsTooltipVisible(visible) {
+            const tooltip = document.getElementById('settingsTriggerTooltip');
+            const trigger = document.getElementById('settingsTrigger');
+            if (!tooltip || !trigger) return;
+            tooltip.classList.toggle('visible', visible);
+            trigger.classList.toggle('visible-hint', visible);
+        }
+
+        function beginSettingsHold(event) {
+            if (event) {
+                event.preventDefault();
+            }
+
+            clearTimeout(settingsHoldTimer);
+            settingsOpenedFromHold = false;
+            setSettingsTooltipVisible(true);
+            settingsHoldTimer = setTimeout(() => {
+                settingsOpenedFromHold = true;
+                setSettingsTooltipVisible(false);
+                openSettingsScreen();
+            }, 1500);
+        }
+
+        function cancelSettingsHold() {
+            clearTimeout(settingsHoldTimer);
+            settingsHoldTimer = null;
+            setSettingsTooltipVisible(false);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toastNotification');
+            if (!toast) return;
+
+            toast.textContent = message;
+            toast.classList.add('visible');
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('visible');
+            }, 2000);
+        }
+
+        function toggleDevMode() {
+            appSettings.devMode = !appSettings.devMode;
+            saveSettings(appSettings);
+            updateDevModeUI();
+            showToast(`Dev Mode: ${appSettings.devMode ? 'ON' : 'OFF'}`);
+        }
+
+        function handleAppTitleTap() {
+            appTitleTapCount += 1;
+
+            clearTimeout(appTitleTapTimeout);
+            appTitleTapTimeout = setTimeout(() => {
+                appTitleTapCount = 0;
+            }, 1000);
+
+            if (appTitleTapCount >= 3) {
+                appTitleTapCount = 0;
+                clearTimeout(appTitleTapTimeout);
+                appTitleTapTimeout = null;
+                toggleDevMode();
+            }
+        }
+
+        // STREAK TRACKING
+        function getStreak() {
+            const streak = localStorage.getItem('readyquest-streak');
+            const lastCompleted = localStorage.getItem('readyquest-last-completed');
+            
+            if (!streak) return 0;
+            
+            const today = new Date().toDateString();
+            const yesterday = new Date(Date.now() - 86400000).toDateString();
+            
+            if (lastCompleted === today) {
+                return parseInt(streak); // Already completed today
+            } else if (lastCompleted === yesterday) {
+                return parseInt(streak); // Continue streak from yesterday
+            } else {
+                return 0; // Streak broken
+            }
+        }
+
+        function incrementStreak() {
+            const currentStreak = getStreak();
+            const today = new Date().toDateString();
+            const lastCompleted = localStorage.getItem('readyquest-last-completed');
+            
+            if (lastCompleted === today) {
+                return currentStreak; // Already counted today
+            }
+            
+            const yesterday = new Date(Date.now() - 86400000).toDateString();
+            const newStreak = (lastCompleted === yesterday) ? currentStreak + 1 : 1;
+            
+            localStorage.setItem('readyquest-streak', newStreak);
+            localStorage.setItem('readyquest-last-completed', today);
+            
+            return newStreak;
+        }
+
+        // SCREEN MANAGEMENT
+        function switchScreen(screenClass) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelector('.' + screenClass).classList.add('active');
+        }
+
+        function startMorning() {
+            currentTaskIndex = 0;
+            document.getElementById('streakDisplay').textContent = getStreak();
+            if (!getEnabledTasks().length) {
+                showToast('Enable at least one task in Settings');
+                return;
+            }
+            switchScreen('game-screen');
+            
+            // Play greeting audio first
+            playAudio('greeting');
+            
+            // Show first task after a brief delay
+            setTimeout(showTask, 1000);
+        }
+
+        // TASK DISPLAY
+        function showTask() {
+            const activeTasks = getEnabledTasks();
+            const task = activeTasks[currentTaskIndex];
+            const timerContainer = document.getElementById('timerContainer');
+            const timerDisplay = document.getElementById('timerDisplay');
+
+            if (!task) {
+                finishMorning();
+                return;
+            }
+
+            clearInterval(taskTimer);
+            taskTimer = null;
+            taskStarted = false;
+            
+            document.getElementById('taskTitle').textContent = task.title;
+            document.getElementById('taskDescription').textContent = task.description;
+            document.getElementById('actionButton').textContent = task.buttonText;
+            document.getElementById('errorMessage').style.display = 'none';
+            renderTimerValue(timerDisplay, task.timerDuration || 60, task.timerDuration || 60);
+            timerContainer.style.display = 'none';
+            
+            // Update progress dots
+            const dotsContainer = document.getElementById('progressDots');
+            dotsContainer.innerHTML = '';
+            activeTasks.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                if (index < currentTaskIndex) dot.classList.add('completed');
+                if (index === currentTaskIndex) dot.classList.add('active');
+                dotsContainer.appendChild(dot);
+            });
+            
+            // Show appropriate prop
+            document.querySelectorAll('.prop').forEach(p => p.classList.remove('visible'));
+            document.querySelector('.prop.' + task.propClass).classList.add('visible');
+            
+            // Reset button
+            document.getElementById('actionButton').disabled = false;
+            
+            // Play instruction audio
+            playAudio('instruction', getTaskAudioIndex(task.id));
+
+            if (window.propDebug) {
+                window.propDebug.sync();
+            }
+        }
+
+        // Patch showTask to sync the second shoe with the first
+        const _origShowTask = showTask;
+        showTask = function(taskIndex) {
+            const result = _origShowTask.apply(this, arguments);
+            // Keep shoes2 in sync with shoes1
+            const shoes1 = document.querySelector('.prop.shoes');
+            const shoes2 = document.getElementById('shoes2');
+            if (shoes1 && shoes2) {
+                shoes1.classList.contains('visible')
+                    ? shoes2.classList.add('visible')
+                    : shoes2.classList.remove('visible');
+            }
+            if (window.propDebug) {
+                window.propDebug.sync();
+            }
+            return result;
+        };
+
+        (function initPropDebug() {
+            const body = document.body;
+            const propAnchors = Array.from(document.querySelectorAll('.prop-anchor'));
+            if (!propAnchors.length) return;
+
+            const debugState = {
+                enabled: false,
+                selectedKey: 'clothes',
+                clipboardMessage: 'Copy values to send back here.',
+            };
+
+            const propConfig = {};
+            propAnchors.forEach((anchor) => {
+                const propNode = anchor.querySelector('.prop');
+                if (!propNode) return;
+                const propKey = Array.from(propNode.classList).find((className) => className !== 'prop');
+                if (!propKey) return;
+                anchor.dataset.propKey = propKey;
+                if (!propConfig[propKey]) {
+                    propConfig[propKey] = anchor;
+                }
+            });
+
+            const panel = document.createElement('aside');
+            panel.className = 'prop-debug-panel';
+            panel.innerHTML = `
+                <h3>Prop Position Debug</h3>
+                <p>Press Ctrl+Shift+D to toggle. Select a prop, nudge it live, then copy the generated CSS block and send it back.</p>
+                <div class="prop-debug-row">
+                    <label for="propDebugSelect">Prop</label>
+                    <select id="propDebugSelect"></select>
+                    <input id="propDebugStep" type="number" min="0.1" step="0.1" value="0.5" aria-label="Step size">
+                </div>
+                <div class="prop-debug-row">
+                    <label for="propDebugX">X %</label>
+                    <input id="propDebugX" type="range" min="20" max="80" step="0.1">
+                    <input id="propDebugXNumber" type="number" min="20" max="80" step="0.1">
+                </div>
+                <div class="prop-debug-row">
+                    <label for="propDebugY">Y %</label>
+                    <input id="propDebugY" type="range" min="20" max="100" step="0.1">
+                    <input id="propDebugYNumber" type="number" min="20" max="100" step="0.1">
+                </div>
+                <div class="prop-debug-row">
+                    <label for="propDebugNudgeX">Nudge X</label>
+                    <input id="propDebugNudgeX" type="range" min="-30" max="30" step="1">
+                    <input id="propDebugNudgeXNumber" type="number" min="-30" max="30" step="1">
+                </div>
+                <div class="prop-debug-row">
+                    <label for="propDebugNudgeY">Nudge Y</label>
+                    <input id="propDebugNudgeY" type="range" min="-30" max="30" step="1">
+                    <input id="propDebugNudgeYNumber" type="number" min="-30" max="30" step="1">
+                </div>
+                <div class="prop-debug-actions">
+                    <button type="button" class="prop-debug-button" id="propDebugCopy">Copy CSS</button>
+                    <button type="button" class="prop-debug-button secondary" id="propDebugReset">Reset Prop</button>
+                </div>
+                <div class="prop-debug-field">
+                    <label for="propDebugOutput">Generated values</label>
+                    <textarea id="propDebugOutput" readonly></textarea>
+                </div>
+                <div class="prop-debug-hint">Arrow keys move the selected prop. Hold Shift for bigger jumps.</div>
+            `;
+            body.appendChild(panel);
+
+            const select = panel.querySelector('#propDebugSelect');
+            const stepInput = panel.querySelector('#propDebugStep');
+            const fields = {
+                x: [panel.querySelector('#propDebugX'), panel.querySelector('#propDebugXNumber')],
+                y: [panel.querySelector('#propDebugY'), panel.querySelector('#propDebugYNumber')],
+                nudgeX: [panel.querySelector('#propDebugNudgeX'), panel.querySelector('#propDebugNudgeXNumber')],
+                nudgeY: [panel.querySelector('#propDebugNudgeY'), panel.querySelector('#propDebugNudgeYNumber')],
+            };
+            const output = panel.querySelector('#propDebugOutput');
+            const copyButton = panel.querySelector('#propDebugCopy');
+            const resetButton = panel.querySelector('#propDebugReset');
+
+            Object.keys(propConfig).forEach((propKey) => {
+                const option = document.createElement('option');
+                option.value = propKey;
+                option.textContent = propKey;
+                select.appendChild(option);
+
+                const anchor = propConfig[propKey];
+                anchor.dataset.defaultAnchorX = getComputedStyle(anchor).getPropertyValue('--anchor-x').trim() || '50%';
+                anchor.dataset.defaultAnchorY = getComputedStyle(anchor).getPropertyValue('--anchor-y').trim() || '50%';
+                anchor.dataset.defaultNudgeX = getComputedStyle(anchor).getPropertyValue('--nudge-x').trim() || '0px';
+                anchor.dataset.defaultNudgeY = getComputedStyle(anchor).getPropertyValue('--nudge-y').trim() || '0px';
+            });
+
+            function readAnchorValue(anchor, cssVar, unit) {
+                const raw = getComputedStyle(anchor).getPropertyValue(cssVar).trim();
+                const numeric = parseFloat(raw || '0');
+                return Number.isNaN(numeric) ? 0 : numeric;
+            }
+
+            function writeAnchorValue(anchor, cssVar, value, unit) {
+                anchor.style.setProperty(cssVar, `${value}${unit}`);
+            }
+
+            function getSelectedAnchor() {
+                return propConfig[debugState.selectedKey];
+            }
+
+            function getPropOutput() {
+                return Object.entries(propConfig)
+                    .map(([propKey, anchor]) => {
+                        const className = Array.from(anchor.classList).find((name) => name.startsWith('prop-anchor-') && name !== 'prop-anchor');
+                        const x = readAnchorValue(anchor, '--anchor-x', '%').toFixed(1);
+                        const y = readAnchorValue(anchor, '--anchor-y', '%').toFixed(1);
+                        const nudgeX = readAnchorValue(anchor, '--nudge-x', 'px').toFixed(0);
+                        const nudgeY = readAnchorValue(anchor, '--nudge-y', 'px').toFixed(0);
+                        return `.${className} {\n    --anchor-x: ${x}%;\n    --anchor-y: ${y}%;\n    --nudge-x: ${nudgeX}px;\n    --nudge-y: ${nudgeY}px;\n}`;
+                    })
+                    .join('\n\n');
+            }
+
+            function syncVisibleProps() {
+                document.querySelectorAll('.prop.debug-force-visible').forEach((node) => node.classList.remove('debug-force-visible'));
+                if (!debugState.enabled) return;
+                const selectedAnchor = getSelectedAnchor();
+                if (!selectedAnchor) return;
+                const selectedProp = selectedAnchor.querySelector('.prop');
+                if (selectedProp) {
+                    selectedProp.classList.add('debug-force-visible');
+                }
+            }
+
+            function refreshSelection() {
+                propAnchors.forEach((anchor) => anchor.classList.toggle('debug-selected', anchor === getSelectedAnchor()));
+                syncVisibleProps();
+            }
+
+            function refreshInputs() {
+                const anchor = getSelectedAnchor();
+                if (!anchor) return;
+                const values = {
+                    x: readAnchorValue(anchor, '--anchor-x', '%'),
+                    y: readAnchorValue(anchor, '--anchor-y', '%'),
+                    nudgeX: readAnchorValue(anchor, '--nudge-x', 'px'),
+                    nudgeY: readAnchorValue(anchor, '--nudge-y', 'px'),
+                };
+                fields.x.forEach((input) => { input.value = values.x; });
+                fields.y.forEach((input) => { input.value = values.y; });
+                fields.nudgeX.forEach((input) => { input.value = values.nudgeX; });
+                fields.nudgeY.forEach((input) => { input.value = values.nudgeY; });
+                output.value = getPropOutput();
+            }
+
+            function applyFieldValue(fieldKey, value) {
+                const anchor = getSelectedAnchor();
+                if (!anchor) return;
+                const parsed = parseFloat(value);
+                if (Number.isNaN(parsed)) return;
+                const unit = fieldKey === 'x' || fieldKey === 'y' ? '%' : 'px';
+                const cssVar = fieldKey === 'x'
+                    ? '--anchor-x'
+                    : fieldKey === 'y'
+                        ? '--anchor-y'
+                        : fieldKey === 'nudgeX'
+                            ? '--nudge-x'
+                            : '--nudge-y';
+                writeAnchorValue(anchor, cssVar, parsed, unit);
+                refreshInputs();
+            }
+
+            function setEnabled(enabled) {
+                debugState.enabled = enabled;
+                body.classList.toggle('debug-mode', enabled);
+                panel.classList.toggle('visible', enabled);
+                refreshSelection();
+                refreshInputs();
+            }
+
+            function changeSelectedProp(propKey) {
+                if (!propConfig[propKey]) return;
+                debugState.selectedKey = propKey;
+                select.value = propKey;
+                refreshSelection();
+                refreshInputs();
+            }
+
+            Object.entries(fields).forEach(([fieldKey, pair]) => {
+                pair.forEach((input) => {
+                    input.addEventListener('input', () => applyFieldValue(fieldKey, input.value));
+                });
+            });
+
+            select.addEventListener('change', () => changeSelectedProp(select.value));
+
+            copyButton.addEventListener('click', async () => {
+                output.select();
+                output.setSelectionRange(0, output.value.length);
+                try {
+                    await navigator.clipboard.writeText(output.value);
+                    copyButton.textContent = 'Copied';
+                    setTimeout(() => {
+                        copyButton.textContent = 'Copy CSS';
+                    }, 1200);
+                } catch (error) {
+                    document.execCommand('copy');
+                }
+            });
+
+            resetButton.addEventListener('click', () => {
+                const anchor = getSelectedAnchor();
+                if (!anchor) return;
+                anchor.style.setProperty('--anchor-x', anchor.dataset.defaultAnchorX);
+                anchor.style.setProperty('--anchor-y', anchor.dataset.defaultAnchorY);
+                anchor.style.setProperty('--nudge-x', anchor.dataset.defaultNudgeX);
+                anchor.style.setProperty('--nudge-y', anchor.dataset.defaultNudgeY);
+                refreshInputs();
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'd') {
+                    event.preventDefault();
+                    setEnabled(!debugState.enabled);
+                    return;
+                }
+
+                if (!debugState.enabled) return;
+                const anchor = getSelectedAnchor();
+                if (!anchor) return;
+                if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+
+                const step = parseFloat(stepInput.value) || 0.5;
+                const moveStep = event.shiftKey ? step * 4 : step;
+                let handled = true;
+
+                switch (event.key) {
+                    case 'ArrowLeft':
+                        applyFieldValue('x', readAnchorValue(anchor, '--anchor-x', '%') - moveStep);
+                        break;
+                    case 'ArrowRight':
+                        applyFieldValue('x', readAnchorValue(anchor, '--anchor-x', '%') + moveStep);
+                        break;
+                    case 'ArrowUp':
+                        applyFieldValue('y', readAnchorValue(anchor, '--anchor-y', '%') - moveStep);
+                        break;
+                    case 'ArrowDown':
+                        applyFieldValue('y', readAnchorValue(anchor, '--anchor-y', '%') + moveStep);
+                        break;
+                    case '[': {
+                        const propKeys = Object.keys(propConfig);
+                        const currentIndex = propKeys.indexOf(debugState.selectedKey);
+                        changeSelectedProp(propKeys[(currentIndex - 1 + propKeys.length) % propKeys.length]);
+                        break;
+                    }
+                    case ']': {
+                        const propKeys = Object.keys(propConfig);
+                        const currentIndex = propKeys.indexOf(debugState.selectedKey);
+                        changeSelectedProp(propKeys[(currentIndex + 1) % propKeys.length]);
+                        break;
+                    }
+                    default:
+                        handled = false;
+                }
+
+                if (handled) {
+                    event.preventDefault();
+                }
+            });
+
+            propAnchors.forEach((anchor) => {
+                anchor.addEventListener('click', () => {
+                    if (!debugState.enabled) return;
+                    changeSelectedProp(anchor.dataset.propKey);
+                });
+            });
+
+            window.propDebug = {
+                sync() {
+                    refreshSelection();
+                    refreshInputs();
+                },
+                enable() {
+                    setEnabled(true);
+                },
+            };
+
+            changeSelectedProp(debugState.selectedKey);
+        })();
+
+        // ACTION HANDLER
+        async function handleAction() {
+            await handleTimedTask();
+        }
+
+        function handleTimedTask() {
+            const button = document.getElementById('actionButton');
+            const task = getEnabledTasks()[currentTaskIndex];
+
+            if (!task) {
+                finishMorning();
+                return;
+            }
+            
+            // DEV MODE: Use simple tap-to-advance
+            if (isDevModeEnabled()) {
+                if (!taskStarted) {
+                    startTaskTimer();
+                } else {
+                    // In dev mode, can always finish
+                    clearInterval(taskTimer);
+                    taskTimer = null;
+                    document.getElementById('timerContainer').style.display = 'none';
+                    taskStarted = false;
+                    completeTask();
+                }
+                return;
+            }
+            
+            // NFC MODE: Initiate scan
+            if (!taskStarted) {
+                // Need to scan START tag
+                button.textContent = 'Scanning for START tag...';
+                button.disabled = true;
+                startNfcScan('start');
+            } else {
+                // Need to scan FINISH tag - scanning should already be active
+                // This tap is just a fallback reminder
+                if (!nfcScanActive) {
+                    startNfcScan('finish');
+                }
+                showToast('Scan the FINISHED tag');
+            }
+        }
+
+        // TASK COMPLETION
+        function completeTask() {
+            stopNfcScan();
+            const activeTasks = getEnabledTasks();
+            showCelebration();
+            
+            setTimeout(() => {
+                currentTaskIndex++;
+                
+                if (currentTaskIndex >= activeTasks.length) {
+                    finishMorning();
+                } else {
+                    showTask();
+                }
+            }, 1500);
+        }
+
+        function showCelebration() {
+            const card = document.getElementById('taskCard');
+            const emoji = document.createElement('div');
+            emoji.className = 'celebration';
+            emoji.innerHTML = '<svg width="80" height="80" viewBox="0 0 24 24" style="display:block;margin:auto"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#FFD700" stroke="#FF8C00" stroke-width=".5"/></svg>';
+            card.appendChild(emoji);
+            
+            setTimeout(() => emoji.remove(), 600);
+        }
+
+        function finishMorning() {
+            stopNfcScan();
+            const newStreak = incrementStreak();
+            document.getElementById('finalStreakDisplay').textContent = newStreak;
+
+            const completionTitle = document.getElementById('completionTitle');
+            const completionMessage = document.getElementById('completionMessage');
+
+            if (completionTitle) {
+                completionTitle.textContent = getCompletionMessage();
+            }
+
+            // Keep the subtitle/message consistent
+            const name = (appSettings?.childName || '').trim();
+            if (completionMessage) {
+                completionMessage.textContent = name
+                    ? `${name} is all ready for school!`
+                    : "You're all ready for school!";
+            }
+            
+            playAudio('completion');
+            switchScreen('completion-screen');
+            
+            // Generate confetti
+            createConfetti();
+        }
+
+        function createConfetti() {
+            const completionScreen = document.querySelector('.completion-screen');
+            const colors = ['#FF6B35', '#F39C12', '#4CAF50', '#FFD700', '#FF69B4', '#00BCD4'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 3 + 's';
+                    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    completionScreen.appendChild(confetti);
+                    
+                    // Remove confetti after animation
+                    setTimeout(() => confetti.remove(), 5000);
+                }, i * 100);
+            }
+        }
+
+        function resetApp() {
+            stopNfcScan();
+            currentTaskIndex = 0;
+            taskStarted = false;
+            clearInterval(taskTimer);
+            taskTimer = null;
+            document.getElementById('timerContainer').style.display = 'none';
+            switchScreen('setup-screen');
+        }
+
+        // AUDIO SYSTEM
+        let currentAudio = null;
+
+        function playAudio(type, index) {
+            // Stop any currently playing audio
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+
+            let audioFile = null;
+            
+            if (type === 'greeting') {
+                audioFile = 'audio/greeting.mp3';
+            } else if (type === 'instruction') {
+                const instructionFiles = [
+                    'audio/task1_dressed.mp3',    // Task 0: Get Dressed
+                    'audio/task2_breakfast.mp3',  // Task 1: Eat Breakfast
+                    'audio/task3_teeth.mp3',      // Task 2: Brush Teeth
+                    'audio/task5_shoes.mp3'       // Task 3: Put On Shoes
+                ];
+                audioFile = instructionFiles[index];
+            } else if (type === 'completion') {
+                audioFile = 'audio/celebration.mp3';
+            }
+            
+            if (audioFile) {
+                currentAudio = new Audio(audioFile);
+                currentAudio.play().catch(err => {
+                    console.log('Audio play failed:', err);
+                    // iOS requires user interaction first - this is expected
+                });
+            }
+        }
+
+        // NFC DETECTION (Stub - requires Web NFC API)
+        async function scanNFC() {
+            // This is a placeholder for NFC functionality
+            // Requires HTTPS and user permission
+            
+            if ('NDEFReader' in window) {
+                try {
+                    const ndef = new NDEFReader();
+                    await ndef.scan();
+                    console.log('NFC scan started');
+                    
+                    ndef.addEventListener('reading', ({ serialNumber }) => {
+                        console.log('NFC tag detected:', serialNumber);
+                        // Validate tag and proceed
+                    });
+                } catch (error) {
+                    console.log('NFC not available:', error);
+                    showError('NFC not available. Using tap mode.');
+                }
+            } else {
+                console.log('Web NFC not supported');
+            }
+        }
+
+        // NFC TAG PARSING
+        function parseReadyQuestTag(text) {
+            // Expected format: "rq:taskId:action" e.g., "rq:teeth:start"
+            if (!text || typeof text !== 'string') return null;
+            
+            const parts = text.trim().toLowerCase().split(':');
+            if (parts.length !== 3) return null;
+            if (parts[0] !== 'rq') return null;
+            
+            const taskId = parts[1]; // dressed, breakfast, teeth, shoes
+            const action = parts[2]; // start, finish
+            
+            if (!['dressed', 'breakfast', 'teeth', 'shoes'].includes(taskId)) return null;
+            if (!['start', 'finish'].includes(action)) return null;
+            
+            return { taskId, action };
+        }
+
+        // NFC SCANNING STATE
+        let nfcReader = null;
+        let nfcAbortController = null;
+        let expectedNfcAction = null; // 'start' or 'finish'
+        let nfcScanActive = false;
+
+        async function startNfcScan(expectedAction) {
+            // Check if Web NFC is supported
+            if (!('NDEFReader' in window)) {
+                showToast('NFC not supported on this device');
+                return false;
+            }
+
+            if (nfcScanActive) {
+                stopNfcScan();
+            }
+            
+            expectedNfcAction = expectedAction;
+            
+            try {
+                nfcAbortController = new AbortController();
+                nfcReader = new NDEFReader();
+                
+                await nfcReader.scan({ signal: nfcAbortController.signal });
+                nfcScanActive = true;
+                
+                nfcReader.addEventListener('reading', handleNfcReading);
+                nfcReader.addEventListener('readingerror', () => {
+                    showToast('Error reading NFC tag. Try again.');
+                });
+                
+                return true;
+            } catch (error) {
+                console.log('NFC scan error:', error);
+                if (error.name === 'NotAllowedError') {
+                    showToast('NFC permission denied');
+                } else if (error.name === 'NotSupportedError') {
+                    showToast('NFC not supported');
+                } else {
+                    showToast('Could not start NFC scan');
+                }
+                return false;
+            }
+        }
+
+        function stopNfcScan() {
+            if (nfcAbortController) {
+                nfcAbortController.abort();
+                nfcAbortController = null;
+            }
+            nfcReader = null;
+            nfcScanActive = false;
+            expectedNfcAction = null;
+        }
+
+        function handleNfcReading(event) {
+            const { message } = event;
+            
+            for (const record of message.records) {
+                if (record.recordType === 'text') {
+                    const textDecoder = new TextDecoder(record.encoding || 'utf-8');
+                    const tagText = textDecoder.decode(record.data);
+                    
+                    const parsed = parseReadyQuestTag(tagText);
+                    if (!parsed) {
+                        showToast('Not a ReadyQuest tag');
+                        return;
+                    }
+                    
+                    const currentTask = getEnabledTasks()[currentTaskIndex];
+                    if (!currentTask) return;
+                    
+                    // Validate tag matches current task
+                    if (parsed.taskId !== currentTask.id) {
+                        showToast(`Wrong tag! Scan the ${currentTask.title.replace('!', '')} tag`);
+                        return;
+                    }
+                    
+                    // Validate action matches expected
+                    if (parsed.action !== expectedNfcAction) {
+                        const expectedText = expectedNfcAction === 'start' ? 'START' : 'FINISHED';
+                        showToast(`Scan the ${expectedText} tag`);
+                        return;
+                    }
+                    
+                    // Success! Process the action
+                    stopNfcScan();
+                    processNfcAction(parsed.action);
+                    return;
+                }
+            }
+            
+            showToast('Could not read tag data');
+        }
+
+        function processNfcAction(action) {
+            if (action === 'start') {
+                // Start the task timer
+                startTaskTimer();
+            } else if (action === 'finish') {
+                // Complete the task (if timer allows or devMode)
+                finishTaskFromNfc();
+            }
+        }
+
+        function startTaskTimer() {
+            const button = document.getElementById('actionButton');
+            const timerContainer = document.getElementById('timerContainer');
+            const timerDisplay = document.getElementById('timerDisplay');
+            const timerRelaxedMessage = document.getElementById('timerRelaxedMessage');
+            const task = getEnabledTasks()[currentTaskIndex];
+            
+            if (!task) return;
+            
+            taskStarted = true;
+            button.textContent = isDevModeEnabled() ? 'Tap when Done!' : 'Scan FINISHED Tag';
+            button.disabled = false;
+            const timerStyle = getTimerStyle();
+            timerContainer.style.display = 'block';
+            timerDisplay.classList.remove('timer-complete');
+
+            if (timerStyle === 'hidden') {
+                timerDisplay.style.display = 'none';
+                timerRelaxedMessage.style.display = 'block';
+            } else {
+                timerDisplay.style.display = 'block';
+                timerRelaxedMessage.style.display = 'none';
+            }
+            
+            const duration = task.timerDuration || 60;
+            let timeLeft = duration;
+            let elapsed = 0;
+            renderTimerValue(timerDisplay, timerStyle === 'countup' ? elapsed : timeLeft, duration);
+            
+            taskTimer = setInterval(() => {
+                timeLeft--;
+                elapsed++;
+                const currentTimerStyle = getTimerStyle();
+                renderTimerValue(timerDisplay, currentTimerStyle === 'countup' ? elapsed : timeLeft, duration);
+                timerDisplay.classList.toggle('timer-complete', currentTimerStyle === 'countup' && elapsed >= duration);
+                
+                if (timeLeft <= 0) {
+                    clearInterval(taskTimer);
+                    taskTimer = null;
+                    button.textContent = isDevModeEnabled() ? 'Tap when Done!' : 'Scan FINISHED Tag';
+                    const finalTimerStyle = getTimerStyle();
+                    renderTimerValue(timerDisplay, finalTimerStyle === 'countup' ? duration : 0, duration);
+                    timerDisplay.classList.toggle('timer-complete', finalTimerStyle === 'countup');
+                }
+            }, 1000);
+            
+            // If not in dev mode, start scanning for FINISH tag
+            if (!isDevModeEnabled()) {
+                startNfcScan('finish');
+            }
+        }
+
+        function finishTaskFromNfc() {
+            // Allow finish if timer complete OR devMode
+            if (!isDevModeEnabled() && taskTimer) {
+                showToast('Keep going! Timer still running.');
+                // Restart scan for finish tag
+                startNfcScan('finish');
+                return;
+            }
+            
+            clearInterval(taskTimer);
+            taskTimer = null;
+            document.getElementById('timerContainer').style.display = 'none';
+            const timerDisplay = document.getElementById('timerDisplay');
+            const timerRelaxedMessage = document.getElementById('timerRelaxedMessage');
+            timerRelaxedMessage.style.display = 'none';
+            timerDisplay.style.display = 'block';
+            timerDisplay.classList.remove('timer-complete');
+            taskStarted = false;
+            completeTask();
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+        }
+
+        // INITIALIZE
+        document.addEventListener('DOMContentLoaded', () => {
+            appSettings = getSettings();
+            saveSettings(appSettings);
+            updateDevModeUI();
+            applyChildNameUI();
+            renderSettingsPanel();
+            document.getElementById('appTitle').addEventListener('click', handleAppTitleTap);
+            document.getElementById('saveSettingsButton').addEventListener('click', closeSettingsScreen);
+            document.getElementById('resetSettingsButton').addEventListener('click', resetSettingsToDefaults);
+            const settingsTrigger = document.getElementById('settingsTrigger');
+            settingsTrigger.addEventListener('mousedown', beginSettingsHold);
+            settingsTrigger.addEventListener('touchstart', beginSettingsHold, { passive: false });
+            ['mouseup', 'mouseleave', 'touchend', 'touchcancel'].forEach((eventName) => {
+                settingsTrigger.addEventListener(eventName, cancelSettingsHold);
+            });
+            settingsTrigger.addEventListener('click', (event) => {
+                event.preventDefault();
+                if (settingsOpenedFromHold) {
+                    settingsOpenedFromHold = false;
+                    return;
+                }
+                cancelSettingsHold();
+            });
+            document.getElementById('streakDisplay').textContent = getStreak();
+        });
+    </script>
+</body>
+</html>
