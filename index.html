@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -60,6 +60,46 @@
             justify-content: center;
             align-items: center;
             gap: 30px;
+        }
+
+        .setup-mascot {
+            width: min(46vw, 180px);
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            animation: setupBreath 3.2s ease-in-out infinite;
+        }
+
+        @keyframes setupBreath {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-4px) scale(1.03); }
+        }
+
+        .setup-greeting {
+            font-size: 24px;
+            font-weight: 600;
+            color: #8a4b22;
+            text-align: center;
+            margin-top: -8px;
+        }
+
+        .setup-streak {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #fff9ef 0%, #ffe2be 100%);
+            border: 1px solid rgba(138, 75, 34, 0.18);
+            color: #8a4b22;
+            font-size: 18px;
+            font-weight: 700;
+            box-shadow: 0 6px 18px rgba(138, 75, 34, 0.14);
+        }
+
+        .setup-streak.visible {
+            display: inline-flex;
         }
 
         .settings-trigger {
@@ -171,6 +211,89 @@
             background: linear-gradient(135deg, #FF9A9E 0%, #FAD0C4 50%, #FBC2EB 100%);
         }
 
+        .game-screen::before,
+        .game-screen::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.15;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .game-screen::before {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, white 0%, transparent 70%);
+            top: -100px;
+            right: -80px;
+            animation: floatSlow 8s ease-in-out infinite;
+        }
+
+        .game-screen::after {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, white 0%, transparent 70%);
+            bottom: 15%;
+            left: -60px;
+            animation: floatSlow 10s ease-in-out infinite reverse;
+        }
+
+        .game-bg-shapes {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+
+        .bg-shape-1 {
+            width: 120px;
+            height: 120px;
+            background: white;
+            top: 20%;
+            left: 10%;
+            animation: floatSlow 12s ease-in-out infinite;
+        }
+
+        .bg-shape-2 {
+            width: 80px;
+            height: 80px;
+            background: white;
+            top: 60%;
+            right: 8%;
+            animation: floatSlow 9s ease-in-out infinite 2s;
+        }
+
+        .bg-shape-3 {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 215, 0, 0.4);
+            top: 35%;
+            right: 20%;
+            animation: floatSlow 11s ease-in-out infinite 1s;
+        }
+
+        .bg-shape-4 {
+            width: 100px;
+            height: 100px;
+            background: white;
+            bottom: 25%;
+            left: 5%;
+            animation: floatSlow 14s ease-in-out infinite 3s;
+        }
+
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.05); }
+        }
+
         .streak-counter {
             text-align: center;
             font-size: 14px;
@@ -217,6 +340,36 @@
             transition: transform 0.3s ease;
         }
 
+        .task-card.exiting {
+            animation: taskExit 0.3s ease-in forwards;
+        }
+
+        .task-card.entering {
+            animation: taskEnter 0.3s ease-out forwards;
+        }
+
+        @keyframes taskExit {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
+        @keyframes taskEnter {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .progress-dots {
             display: flex;
             gap: 12px;
@@ -248,6 +401,83 @@
             animation: pulse 2s ease-in-out infinite;
         }
 
+        /* Task Progress Icons */
+        .progress-icons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+
+        .progress-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .progress-icon img {
+            width: 22px;
+            height: 22px;
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+            filter: brightness(0) invert(1);
+        }
+
+        .progress-icon.completed {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            border-color: white;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        }
+
+        .progress-icon.completed img {
+            opacity: 1;
+        }
+
+        .progress-icon-check {
+            position: absolute;
+            bottom: -3px;
+            right: -3px;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .progress-icon-check svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .progress-icon.active {
+            background: white;
+            transform: scale(1.25);
+            border-color: transparent;
+            box-shadow: 0 4px 16px rgba(255, 255, 255, 0.7), 0 0 0 4px rgba(255, 255, 255, 0.3);
+            animation: iconPulse 2s ease-in-out infinite;
+        }
+
+        .progress-icon.active img {
+            opacity: 1;
+            filter: brightness(0) invert(0.4) sepia(1) saturate(5) hue-rotate(350deg);
+        }
+
+        @keyframes iconPulse {
+            0%, 100% { box-shadow: 0 4px 16px rgba(255, 255, 255, 0.7), 0 0 0 4px rgba(255, 255, 255, 0.3); }
+            50% { box-shadow: 0 4px 20px rgba(255, 255, 255, 0.9), 0 0 0 8px rgba(255, 255, 255, 0.2); }
+        }
+
         @keyframes pulse {
             0%, 100% { box-shadow: 0 4px 16px rgba(255, 255, 255, 0.6), 0 0 0 3px rgba(255, 255, 255, 0.3); }
             50% { box-shadow: 0 4px 20px rgba(255, 255, 255, 0.8), 0 0 0 6px rgba(255, 255, 255, 0.2); }
@@ -255,9 +485,9 @@
 
         /* MASCOT */
         .mascot-stage {
-            --stage-size: clamp(220px, 40vh, 320px);
+            --stage-size: clamp(280px, 55vh, 450px);
             position: absolute;
-            bottom: clamp(80px, 12vh, 120px);
+            bottom: clamp(90px, 13vh, 130px);
             left: 50%;
             transform: translateX(-50%);
             width: var(--stage-size);
@@ -576,13 +806,11 @@
             padding: 20px 36px;
             font-size: 24px;
             font-weight: 700;
-            background: linear-gradient(135deg, #fff 0%, #f8f8f8 100%);
+            background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 50%, #EEEEEE 100%);
             color: #FF6B35;
             border: none;
-            border-radius: 18px;
+            border-radius: 20px;
             cursor: pointer;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.9) inset;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             position: fixed;
             bottom: 24px;
             left: 50%;
@@ -591,20 +819,178 @@
             width: calc(100% - 48px);
             max-width: 400px;
             z-index: 20;
-            text-shadow: 0 1px 2px rgba(255, 107, 53, 0.1);
             touch-action: manipulation;
             animation: buttonBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+
+            /* Premium depth */
+            box-shadow:
+                0 6px 0 #D4D4D4,
+                0 8px 15px rgba(0, 0, 0, 0.15),
+                inset 0 2px 0 rgba(255, 255, 255, 0.9),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.05);
+            text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
+
+            transition:
+                transform 0.1s ease,
+                box-shadow 0.1s ease;
         }
 
         .action-button:active {
-            transform: translateX(-50%) scale(0.96) translateY(2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transform: translateX(-50%) translateY(4px);
+            box-shadow:
+                0 2px 0 #D4D4D4,
+                0 3px 8px rgba(0, 0, 0, 0.12),
+                inset 0 2px 0 rgba(255, 255, 255, 0.9),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.05);
         }
 
         .action-button:disabled {
-            opacity: 0.6;
+            opacity: 0.7;
             cursor: not-allowed;
             transform: translateX(-50%);
+            box-shadow:
+                0 4px 0 #D4D4D4,
+                0 6px 12px rgba(0, 0, 0, 0.1),
+                inset 0 2px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        .nfc-trouble-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: min(88vw, 360px);
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22);
+            z-index: 50;
+            text-align: center;
+            display: none;
+        }
+
+        .nfc-trouble-panel h3 {
+            font-size: 26px;
+            color: #cf5a19;
+            margin-bottom: 8px;
+        }
+
+        .nfc-trouble-panel p {
+            font-size: 17px;
+            color: #7a3e18;
+            margin-bottom: 18px;
+        }
+
+        .nfc-trouble-panel button {
+            width: 100%;
+            border: none;
+            border-radius: 14px;
+            padding: 12px 16px;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .nfc-trouble-panel button:first-of-type {
+            margin-top: 0;
+            background: linear-gradient(135deg, #ff6b35 0%, #f39c12 100%);
+            color: white;
+        }
+
+        .nfc-trouble-panel button:last-of-type {
+            background: #fff5eb;
+            color: #b35724;
+            border: 1px solid rgba(255, 107, 53, 0.3);
+        }
+
+        .nfc-trouble-panel.visible {
+            display: block;
+            animation: nfcTroubleFadeIn 0.25s ease-out;
+        }
+
+        @keyframes nfcTroubleFadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -46%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .action-button.timer-done {
+            background: linear-gradient(180deg, #E8F5E9 0%, #C8E6C9 50%, #A5D6A7 100%);
+            color: #2E7D32;
+            box-shadow:
+                0 6px 0 #81C784,
+                0 8px 15px rgba(76, 175, 80, 0.3),
+                inset 0 2px 0 rgba(255, 255, 255, 0.9),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.05);
+            animation: buttonReadyPulse 1.5s ease-in-out infinite;
+        }
+
+        .action-button.scanning {
+            animation: scanPulse 1.5s ease-in-out infinite;
+            box-shadow:
+                0 6px 0 #D4D4D4,
+                0 10px 22px rgba(255, 107, 53, 0.35),
+                0 0 0 3px rgba(255, 107, 53, 0.2),
+                inset 0 2px 0 rgba(255, 255, 255, 0.9),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        @keyframes scanPulse {
+            0%, 100% {
+                transform: translateX(-50%) scale(1);
+                box-shadow:
+                    0 6px 0 #D4D4D4,
+                    0 8px 15px rgba(0, 0, 0, 0.15),
+                    0 0 0 0 rgba(255, 107, 53, 0),
+                    inset 0 2px 0 rgba(255, 255, 255, 0.9),
+                    inset 0 -2px 4px rgba(0, 0, 0, 0.05);
+            }
+            50% {
+                transform: translateX(-50%) scale(1.02);
+                box-shadow:
+                    0 6px 0 #D4D4D4,
+                    0 12px 26px rgba(255, 107, 53, 0.45),
+                    0 0 0 6px rgba(255, 107, 53, 0.18),
+                    inset 0 2px 0 rgba(255, 255, 255, 0.9),
+                    inset 0 -2px 4px rgba(0, 0, 0, 0.05);
+            }
+        }
+
+        .scan-icon {
+            width: 24px;
+            height: 24px;
+            vertical-align: middle;
+            margin-right: 8px;
+            animation: wavesPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes wavesPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .action-button.timer-done:active {
+            transform: translateX(-50%) translateY(4px);
+            box-shadow:
+                0 2px 0 #81C784,
+                0 3px 8px rgba(76, 175, 80, 0.2),
+                inset 0 2px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        @keyframes buttonReadyPulse {
+            0%, 100% {
+                transform: translateX(-50%) scale(1);
+            }
+            50% {
+                transform: translateX(-50%) scale(1.02);
+            }
         }
 
         @keyframes buttonBounce {
@@ -654,6 +1040,44 @@
         @keyframes timerPulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
+        }
+
+        .timer-progress-bar {
+            width: min(280px, 70vw);
+            height: 18px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            margin: 12px auto 0;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 10;
+        }
+
+        .timer-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%);
+            border-radius: 12px;
+            transition: width 1s linear;
+            box-shadow: 0 0 12px rgba(255, 165, 0, 0.5), inset 0 -2px 4px rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+            position: relative;
+        }
+
+        .timer-progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 8px;
+            right: 8px;
+            height: 6px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, transparent 100%);
+            border-radius: 6px;
+        }
+
+        .timer-progress-bar.complete .timer-progress-fill {
+            background: linear-gradient(90deg, #4CAF50 0%, #66BB6A 50%, #81C784 100%);
+            box-shadow: 0 0 16px rgba(76, 175, 80, 0.6), inset 0 -2px 4px rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.4);
         }
 
         /* CELEBRATION */
@@ -756,6 +1180,34 @@
             flex-shrink: 0;
         }
 
+        .completion-badge {
+            display: none;
+            padding: 12px 22px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #FFE8A3 0%, #FFD54F 50%, #F2B705 100%);
+            color: #7a4a00;
+            font-size: clamp(16px, 3.6vw, 22px);
+            font-weight: 700;
+            box-shadow: 0 8px 22px rgba(242, 183, 5, 0.35), 0 0 0 1px rgba(255,255,255,0.55) inset;
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .completion-badge.visible {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            animation: badgeBounce 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes badgeBounce {
+            0% { transform: translateY(20px) scale(0.7); opacity: 0; }
+            60% { transform: translateY(-6px) scale(1.08); opacity: 1; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
         @keyframes streakAppear {
             0% { transform: scale(0); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
@@ -828,6 +1280,29 @@
             background: #FF6B35;
             animation: confettiFall 3s linear infinite;
             z-index: 0;
+        }
+
+        .confetti-square {
+            width: 10px;
+            height: 10px;
+        }
+
+        .confetti-circle {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .confetti-star {
+            width: 12px;
+            height: 12px;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        }
+
+        .confetti-ribbon {
+            width: 4px;
+            height: 16px;
+            border-radius: 2px;
         }
 
         @keyframes confettiFall {
@@ -950,6 +1425,47 @@
             margin-bottom: 14px;
         }
 
+        .settings-toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            color: #8a4b22;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .toggle-switch {
+            width: 52px;
+            height: 28px;
+            background: #ccc;
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .toggle-switch.active {
+            background: linear-gradient(135deg, #ff6b35 0%, #f39c12 100%);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #fff;
+            transition: transform 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(24px);
+        }
+
         .settings-field:last-child {
             margin-bottom: 0;
         }
@@ -1035,7 +1551,10 @@
     <!-- SETUP SCREEN -->
     <div class="screen active setup-screen">
         <div class="dev-mode-badge" id="devModeBadge">DEV MODE</div>
+        <img src="quinnja.png" alt="Quinnja" class="setup-mascot">
+        <div class="setup-greeting" id="setupGreeting">Good morning</div>
         <h1 class="app-title" id="appTitle">ReadyQuest</h1>
+        <div class="setup-streak" id="setupStreak"></div>
         <button class="setup-button" onclick="startMorning()"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;display:inline-block;margin-right:6px"><circle cx="12" cy="14" r="5" fill="#FFD700"/><path d="M12 3v3M4.22 7.22l2.12 2.12M1 14h3M4.22 20.78l2.12-2.12M12 25v-3M19.78 20.78l-2.12-2.12M23 14h-3M19.78 7.22l-2.12 2.12" stroke="#FF8C00" stroke-width="2" stroke-linecap="round"/><path d="M2 19h20" stroke="#FF6B35" stroke-width="2" stroke-linecap="round"/></svg> Start Morning!</button>
         <div class="settings-trigger-tooltip" id="settingsTriggerTooltip">Hold to open...</div>
         <button class="settings-trigger" id="settingsTrigger" type="button" aria-label="Open settings">
@@ -1063,6 +1582,14 @@
                     <option value="hidden">Hidden (no timer)</option>
                 </select>
             </div>
+            <div class="settings-field">
+                <label class="settings-label" for="mascotNameInput">Mascot Name</label>
+                <input class="settings-input" id="mascotNameInput" type="text" placeholder="Quinnja">
+            </div>
+            <div class="settings-toggle-row">
+                <span>Sound Effects</span>
+                <div id="soundToggle" class="toggle-switch active" onclick="toggleSound()"></div>
+            </div>
         </div>
 
         <div class="settings-card">
@@ -1075,6 +1602,12 @@
 
     <!-- GAME SCREEN -->
     <div class="screen game-screen">
+        <div class="game-bg-shapes">
+            <div class="bg-shape bg-shape-1"></div>
+            <div class="bg-shape bg-shape-2"></div>
+            <div class="bg-shape bg-shape-3"></div>
+            <div class="bg-shape bg-shape-4"></div>
+        </div>
         <div class="streak-counter">
             <svg width="20" height="20" viewBox="0 0 24 24" style="vertical-align:middle;display:inline-block;margin-right:4px"><path d="M12 23c-4.97 0-9-3.58-9-8 0-3.07 2.31-6.64 4-8 0 3 2 5 4 5-.26-3.9 2-8 5-10 .67 2 2 4.33 3 5 1.47-1.47 2-3.47 2-6 2.5 2.5 4 5.5 4 9 0 4.42-4.03 8-9 8z" fill="#FF6B35"/><path d="M12 23c-2.76 0-5-1.79-5-4 0-1.5 1-3.5 2.5-4.5.5 1 1.5 2 2.5 2s2-1 2.5-2.5C15.5 15.5 17 17.5 17 19c0 2.21-2.24 4-5 4z" fill="#FFD700"/></svg> Current Streak
             <span class="streak-number" id="streakDisplay">0</span>
@@ -1089,6 +1622,9 @@
             <div id="timerContainer" style="display: none;">
                 <div class="timer-display" id="timerDisplay">90</div>
                 <div class="timer-relaxed-message" id="timerRelaxedMessage" style="display:none;">Take your time! </div>
+                <div class="timer-progress-bar" id="timerProgressBar">
+                    <div class="timer-progress-fill" id="timerProgressFill"></div>
+                </div>
             </div>
 
             <button class="action-button" id="actionButton" onclick="handleAction()">Tap to Start</button>
@@ -1109,6 +1645,13 @@
             <div class="prop-anchor prop-anchor-shoes2"><img id="shoes2" class="prop shoes" src="assets/props/school-shoe-right.svg" alt="Right school shoe"></div>
             </div>
         </div>
+
+        <div id="nfcTroublePanel" class="nfc-trouble-panel" style="display:none">
+            <h3>Having trouble?</h3>
+            <p>The tag isn't scanning properly</p>
+            <button type="button" onclick="retryNfcScan()">Try Again</button>
+            <button type="button" onclick="enableSessionTapMode()">Use Tap Mode Instead</button>
+        </div>
     </div>
 
     <!-- COMPLETION SCREEN -->
@@ -1121,6 +1664,7 @@
         <div class="streak-counter">
             <svg width="20" height="20" viewBox="0 0 24 24" style="vertical-align:middle;display:inline-block;margin-right:4px"><path d="M12 23c-4.97 0-9-3.58-9-8 0-3.07 2.31-6.64 4-8 0 3 2 5 4 5-.26-3.9 2-8 5-10 .67 2 2 4.33 3 5 1.47-1.47 2-3.47 2-6 2.5 2.5 4 5.5 4 9 0 4.42-4.03 8-9 8z" fill="#FF6B35"/><path d="M12 23c-2.76 0-5-1.79-5-4 0-1.5 1-3.5 2.5-4.5.5 1 1.5 2 2.5 2s2-1 2.5-2.5C15.5 15.5 17 17.5 17 19c0 2.21-2.24 4-5 4z" fill="#FFD700"/></svg> Streak: <span class="streak-number" id="finalStreakDisplay">0</span> days!
         </div>
+        <div class="completion-badge" id="completionBadge"></div>
         <button class="reset-button" onclick="resetApp()">Start New Day</button>
     </div>
 
@@ -1131,6 +1675,8 @@
 
         const defaultSettings = {
             childName: "",
+            mascotName: "Quinnja",
+            soundEnabled: true,
             timerStyle: "countdown",
             devMode: true,
             tasks: [
@@ -1197,6 +1743,29 @@
             return appSettings?.timerStyle || defaultSettings.timerStyle;
         }
 
+        function getMascotName() {
+            return appSettings?.mascotName || 'Quinnja';
+        }
+
+        function isSoundEnabled() {
+            return appSettings?.soundEnabled !== false;
+        }
+
+        function updateProgressBar(elapsed, duration) {
+            const bar = document.getElementById('timerProgressBar');
+            const fill = document.getElementById('timerProgressFill');
+            if (!bar || !fill) return;
+
+            const percent = Math.min((elapsed / duration) * 100, 100);
+            fill.style.width = percent + '%';
+
+            if (percent >= 100) {
+                bar.classList.add('complete');
+            } else {
+                bar.classList.remove('complete');
+            }
+        }
+
         function renderTimerValue(timerDisplay, value, duration) {
             const timerStyle = getTimerStyle();
 
@@ -1232,6 +1801,34 @@
                 : "You're all ready for school!";
         }
 
+        function updateSetupScreen() {
+            const setupGreeting = document.getElementById('setupGreeting');
+            const setupStreak = document.getElementById('setupStreak');
+            if (!setupGreeting || !setupStreak) return;
+
+            const hour = new Date().getHours();
+            let greetingText = 'Good evening';
+            if (hour < 12) {
+                greetingText = 'Good morning';
+            } else if (hour < 17) {
+                greetingText = 'Good afternoon';
+            }
+
+            const childName = (appSettings?.childName || '').trim();
+            setupGreeting.textContent = childName
+                ? `${greetingText}, ${childName}!`
+                : greetingText;
+
+            const currentStreak = getStreak();
+            if (currentStreak > 0) {
+                setupStreak.textContent = `Streak: ${currentStreak} day${currentStreak === 1 ? '' : 's'}!`;
+                setupStreak.classList.add('visible');
+            } else {
+                setupStreak.textContent = '';
+                setupStreak.classList.remove('visible');
+            }
+        }
+
         function buildDraftSettingsFromForm() {
             const taskDrafts = defaultSettings.tasks.map((defaultTask) => {
                 const enabledInput = document.querySelector(`[data-task-enabled="${defaultTask.id}"]`);
@@ -1250,9 +1847,17 @@
             return {
                 ...appSettings,
                 childName: document.getElementById('childNameInput').value.trim(),
+                mascotName: document.getElementById('mascotNameInput').value.trim() || 'Quinnja',
+                soundEnabled: document.getElementById('soundToggle').classList.contains('active'),
                 timerStyle: document.getElementById('timerStyleSelect').value,
                 tasks: taskDrafts
             };
+        }
+
+        function toggleSound() {
+            const soundToggle = document.getElementById('soundToggle');
+            if (!soundToggle) return;
+            soundToggle.classList.toggle('active');
         }
 
         function updateTaskDurationPreview(taskId, seconds) {
@@ -1266,7 +1871,9 @@
             if (!taskList) return;
 
             document.getElementById('childNameInput').value = appSettings.childName || '';
+            document.getElementById('mascotNameInput').value = appSettings.mascotName || 'Quinnja';
             document.getElementById('timerStyleSelect').value = getTimerStyle();
+            document.getElementById('soundToggle').classList.toggle('active', isSoundEnabled());
 
             taskList.innerHTML = '';
 
@@ -1312,6 +1919,7 @@
             saveSettings(appSettings);
             updateDevModeUI();
             applyChildNameUI();
+            updateSetupScreen();
         }
 
         function openSettingsScreen() {
@@ -1389,6 +1997,13 @@
             }
         ];
 
+        const taskIconPaths = {
+            dressed: 'assets/icons/icon-dressed.svg',
+            breakfast: 'assets/icons/icon-breakfast.svg',
+            teeth: 'assets/icons/icon-teeth.svg',
+            shoes: 'assets/icons/icon-shoes.svg'
+        };
+
         // STATE
         let currentTaskIndex = 0;
         let taskTimer = null;
@@ -1400,7 +2015,7 @@
         let toastTimeout = null;
 
         function isDevModeEnabled() {
-            return Boolean(appSettings?.devMode);
+            return sessionDevMode || Boolean(appSettings?.devMode);
         }
 
         function updateDevModeUI() {
@@ -1449,6 +2064,73 @@
             toastTimeout = setTimeout(() => {
                 toast.classList.remove('visible');
             }, 2000);
+        }
+
+        function resetNfcFailCount() {
+            nfcFailCount = 0;
+            const troublePanel = document.getElementById('nfcTroublePanel');
+            if (!troublePanel) return;
+            troublePanel.classList.remove('visible');
+            troublePanel.style.display = 'none';
+        }
+
+        function showNfcTroubleOptions() {
+            stopNfcScan();
+            const actionButton = document.getElementById('actionButton');
+            const troublePanel = document.getElementById('nfcTroublePanel');
+            if (!actionButton || !troublePanel) return;
+
+            actionButton.style.display = 'none';
+            troublePanel.style.display = 'block';
+            troublePanel.classList.add('visible');
+        }
+
+        function retryNfcScan() {
+            resetNfcFailCount();
+
+            const actionButton = document.getElementById('actionButton');
+            const troublePanel = document.getElementById('nfcTroublePanel');
+            const expectedAction = expectedNfcAction || (taskStarted ? 'finish' : 'start');
+
+            if (troublePanel) {
+                troublePanel.classList.remove('visible');
+                troublePanel.style.display = 'none';
+            }
+
+            if (actionButton) {
+                actionButton.style.display = '';
+                actionButton.classList.add('scanning');
+                if (expectedAction === 'start') {
+                    actionButton.innerHTML = getScanButtonHtml('Scan the tag!');
+                    actionButton.disabled = true;
+                } else {
+                    actionButton.innerHTML = getScanButtonHtml('Scan FINISHED Tag');
+                    actionButton.disabled = false;
+                }
+            }
+
+            startNfcScan(expectedAction);
+        }
+
+        function enableSessionTapMode() {
+            sessionDevMode = true;
+            resetNfcFailCount();
+
+            const actionButton = document.getElementById('actionButton');
+            const troublePanel = document.getElementById('nfcTroublePanel');
+            if (troublePanel) {
+                troublePanel.classList.remove('visible');
+                troublePanel.style.display = 'none';
+            }
+
+            if (actionButton) {
+                actionButton.style.display = '';
+                actionButton.classList.remove('scanning');
+                actionButton.disabled = false;
+                actionButton.textContent = taskStarted ? 'Tap when Done!' : 'Tap to Start';
+            }
+
+            showToast('Tap mode enabled for this session');
         }
 
         function toggleDevMode() {
@@ -1515,6 +2197,9 @@
         function switchScreen(screenClass) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.querySelector('.' + screenClass).classList.add('active');
+            if (screenClass === 'setup-screen') {
+                updateSetupScreen();
+            }
         }
 
         function startMorning() {
@@ -1537,8 +2222,16 @@
         function showTask() {
             const activeTasks = getEnabledTasks();
             const task = activeTasks[currentTaskIndex];
+            const taskCard = document.getElementById('taskCard');
             const timerContainer = document.getElementById('timerContainer');
             const timerDisplay = document.getElementById('timerDisplay');
+
+            if (taskCard && !taskCard.classList.contains('entering')) {
+                taskCard.classList.add('entering');
+                setTimeout(() => {
+                    taskCard.classList.remove('entering');
+                }, 300);
+            }
 
             if (!task) {
                 finishMorning();
@@ -1556,15 +2249,29 @@
             renderTimerValue(timerDisplay, task.timerDuration || 60, task.timerDuration || 60);
             timerContainer.style.display = 'none';
             
-            // Update progress dots
+            // Update progress icons
             const dotsContainer = document.getElementById('progressDots');
             dotsContainer.innerHTML = '';
-            activeTasks.forEach((_, index) => {
-                const dot = document.createElement('div');
-                dot.className = 'dot';
-                if (index < currentTaskIndex) dot.classList.add('completed');
-                if (index === currentTaskIndex) dot.classList.add('active');
-                dotsContainer.appendChild(dot);
+            dotsContainer.className = 'progress-icons';
+            activeTasks.forEach((task, index) => {
+                const icon = document.createElement('div');
+                icon.className = 'progress-icon';
+
+                const img = document.createElement('img');
+                img.src = taskIconPaths[task.id] || '';
+                img.alt = task.title;
+                icon.appendChild(img);
+
+                if (index < currentTaskIndex) {
+                    icon.classList.add('completed');
+                    const check = document.createElement('div');
+                    check.className = 'progress-icon-check';
+                    check.innerHTML = '<svg viewBox="0 0 24 24" fill="#4CAF50"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>';
+                    icon.appendChild(check);
+                }
+                if (index === currentTaskIndex) icon.classList.add('active');
+
+                dotsContainer.appendChild(icon);
             });
             
             // Show appropriate prop
@@ -1573,6 +2280,7 @@
             
             // Reset button
             document.getElementById('actionButton').disabled = false;
+            document.getElementById('actionButton').classList.remove('timer-done');
             
             // Play instruction audio
             playAudio('instruction', getTaskAudioIndex(task.id));
@@ -1885,6 +2593,12 @@
         })();
 
         // ACTION HANDLER
+        const nfcScanButtonIcon = `<svg class="scan-icon" viewBox="0 0 28 24" fill="none" aria-hidden="true"><rect x="2" y="2" width="14" height="20" rx="3" stroke="currentColor" stroke-width="2"/><path d="M18 6c1.6 0 2.9 1.3 2.9 2.9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M18 3.5c3 0 5.5 2.5 5.5 5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M18 1c4.4 0 8 3.6 8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
+
+        function getScanButtonHtml(labelText) {
+            return `${nfcScanButtonIcon}${labelText}`;
+        }
+
         async function handleAction() {
             await handleTimedTask();
         }
@@ -1916,7 +2630,8 @@
             // NFC MODE: Initiate scan
             if (!taskStarted) {
                 // Need to scan START tag
-                button.textContent = 'Scanning for START tag...';
+                button.innerHTML = getScanButtonHtml('Scan the tag!');
+                button.classList.add('scanning');
                 button.disabled = true;
                 startNfcScan('start');
             } else {
@@ -1933,6 +2648,7 @@
         function completeTask() {
             stopNfcScan();
             const activeTasks = getEnabledTasks();
+            const taskCard = document.getElementById('taskCard');
             showCelebration();
             
             setTimeout(() => {
@@ -1941,7 +2657,20 @@
                 if (currentTaskIndex >= activeTasks.length) {
                     finishMorning();
                 } else {
-                    showTask();
+                    if (!taskCard) {
+                        showTask();
+                        return;
+                    }
+
+                    taskCard.classList.add('exiting');
+                    setTimeout(() => {
+                        taskCard.classList.remove('exiting');
+                        showTask();
+                        taskCard.classList.add('entering');
+                        setTimeout(() => {
+                            taskCard.classList.remove('entering');
+                        }, 300);
+                    }, 300);
                 }
             }, 1500);
         }
@@ -1960,6 +2689,24 @@
             stopNfcScan();
             const newStreak = incrementStreak();
             document.getElementById('finalStreakDisplay').textContent = newStreak;
+            const completionBadge = document.getElementById('completionBadge');
+
+            if (completionBadge) {
+                const milestoneMessages = {
+                    7: '🏆 One week streak!',
+                    14: '🏆 Two week streak!',
+                    30: '🏆 30 day streak!',
+                    100: '🏆 100 day legend!'
+                };
+                const badgeText = milestoneMessages[newStreak];
+                if (badgeText) {
+                    completionBadge.textContent = badgeText;
+                    completionBadge.classList.add('visible');
+                } else {
+                    completionBadge.textContent = '';
+                    completionBadge.classList.remove('visible');
+                }
+            }
 
             const completionTitle = document.getElementById('completionTitle');
             const completionMessage = document.getElementById('completionMessage');
@@ -1986,11 +2733,13 @@
         function createConfetti() {
             const completionScreen = document.querySelector('.completion-screen');
             const colors = ['#FF6B35', '#F39C12', '#4CAF50', '#FFD700', '#FF69B4', '#00BCD4'];
+            const shapeClasses = ['confetti-square', 'confetti-circle', 'confetti-star', 'confetti-ribbon'];
             
             for (let i = 0; i < 50; i++) {
                 setTimeout(() => {
                     const confetti = document.createElement('div');
-                    confetti.className = 'confetti';
+                    const shapeClass = shapeClasses[Math.floor(Math.random() * shapeClasses.length)];
+                    confetti.className = `confetti ${shapeClass}`;
                     confetti.style.left = Math.random() * 100 + '%';
                     confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
                     confetti.style.animationDelay = Math.random() * 3 + 's';
@@ -2007,9 +2756,22 @@
             stopNfcScan();
             currentTaskIndex = 0;
             taskStarted = false;
+            sessionDevMode = false;
+            nfcFailCount = 0;
             clearInterval(taskTimer);
             taskTimer = null;
             document.getElementById('timerContainer').style.display = 'none';
+            const actionButton = document.getElementById('actionButton');
+            if (actionButton) {
+                actionButton.style.display = '';
+                actionButton.classList.remove('scanning');
+            }
+            resetNfcFailCount();
+            const completionBadge = document.getElementById('completionBadge');
+            if (completionBadge) {
+                completionBadge.textContent = '';
+                completionBadge.classList.remove('visible');
+            }
             switchScreen('setup-screen');
         }
 
@@ -2017,6 +2779,8 @@
         let currentAudio = null;
 
         function playAudio(type, index) {
+            if (!isSoundEnabled()) return;
+
             // Stop any currently playing audio
             if (currentAudio) {
                 currentAudio.pause();
@@ -2095,6 +2859,8 @@
         let nfcAbortController = null;
         let expectedNfcAction = null; // 'start' or 'finish'
         let nfcScanActive = false;
+        let nfcFailCount = 0;
+        let sessionDevMode = false;
 
         async function startNfcScan(expectedAction) {
             // Check if Web NFC is supported
@@ -2118,7 +2884,11 @@
                 
                 nfcReader.addEventListener('reading', handleNfcReading);
                 nfcReader.addEventListener('readingerror', () => {
+                    nfcFailCount += 1;
                     showToast('Error reading NFC tag. Try again.');
+                    if (nfcFailCount >= 3) {
+                        showNfcTroubleOptions();
+                    }
                 });
                 
                 return true;
@@ -2140,6 +2910,8 @@
                 nfcAbortController.abort();
                 nfcAbortController = null;
             }
+            const actionButton = document.getElementById('actionButton');
+            actionButton?.classList.remove('scanning');
             nfcReader = null;
             nfcScanActive = false;
             expectedNfcAction = null;
@@ -2164,28 +2936,44 @@
                     
                     // Validate tag matches current task
                     if (parsed.taskId !== currentTask.id) {
+                        nfcFailCount += 1;
                         showToast(`Wrong tag! Scan the ${currentTask.title.replace('!', '')} tag`);
+                        if (nfcFailCount >= 3) {
+                            showNfcTroubleOptions();
+                        }
                         return;
                     }
                     
                     // Validate action matches expected
                     if (parsed.action !== expectedNfcAction) {
                         const expectedText = expectedNfcAction === 'start' ? 'START' : 'FINISHED';
+                        nfcFailCount += 1;
                         showToast(`Scan the ${expectedText} tag`);
+                        if (nfcFailCount >= 3) {
+                            showNfcTroubleOptions();
+                        }
                         return;
                     }
                     
                     // Success! Process the action
+                    nfcFailCount = 0;
                     stopNfcScan();
                     processNfcAction(parsed.action);
                     return;
                 }
             }
             
+            nfcFailCount += 1;
             showToast('Could not read tag data');
+            if (nfcFailCount >= 3) {
+                showNfcTroubleOptions();
+            }
         }
 
         function processNfcAction(action) {
+            const actionButton = document.getElementById('actionButton');
+            actionButton?.classList.remove('scanning');
+
             if (action === 'start') {
                 // Start the task timer
                 startTaskTimer();
@@ -2205,7 +2993,13 @@
             if (!task) return;
             
             taskStarted = true;
-            button.textContent = isDevModeEnabled() ? 'Tap when Done!' : 'Scan FINISHED Tag';
+            if (isDevModeEnabled()) {
+                button.textContent = 'Tap when Done!';
+                button.classList.remove('scanning');
+            } else {
+                button.innerHTML = getScanButtonHtml('Scan FINISHED Tag');
+                button.classList.add('scanning');
+            }
             button.disabled = false;
             const timerStyle = getTimerStyle();
             timerContainer.style.display = 'block';
@@ -2223,18 +3017,27 @@
             let timeLeft = duration;
             let elapsed = 0;
             renderTimerValue(timerDisplay, timerStyle === 'countup' ? elapsed : timeLeft, duration);
+            updateProgressBar(0, duration);
             
             taskTimer = setInterval(() => {
                 timeLeft--;
                 elapsed++;
                 const currentTimerStyle = getTimerStyle();
                 renderTimerValue(timerDisplay, currentTimerStyle === 'countup' ? elapsed : timeLeft, duration);
+                updateProgressBar(elapsed, duration);
                 timerDisplay.classList.toggle('timer-complete', currentTimerStyle === 'countup' && elapsed >= duration);
                 
                 if (timeLeft <= 0) {
                     clearInterval(taskTimer);
                     taskTimer = null;
-                    button.textContent = isDevModeEnabled() ? 'Tap when Done!' : 'Scan FINISHED Tag';
+                    if (isDevModeEnabled()) {
+                        button.textContent = 'Tap when Done!';
+                        button.classList.remove('scanning');
+                    } else {
+                        button.innerHTML = getScanButtonHtml('Scan FINISHED Tag');
+                        button.classList.add('scanning');
+                    }
+                    button.classList.add('timer-done');
                     const finalTimerStyle = getTimerStyle();
                     renderTimerValue(timerDisplay, finalTimerStyle === 'countup' ? duration : 0, duration);
                     timerDisplay.classList.toggle('timer-complete', finalTimerStyle === 'countup');
@@ -2258,7 +3061,10 @@
             
             clearInterval(taskTimer);
             taskTimer = null;
+            document.getElementById('actionButton').classList.remove('timer-done');
             document.getElementById('timerContainer').style.display = 'none';
+            document.getElementById('timerProgressBar')?.classList.remove('complete');
+            document.getElementById('timerProgressFill').style.width = '0%';
             const timerDisplay = document.getElementById('timerDisplay');
             const timerRelaxedMessage = document.getElementById('timerRelaxedMessage');
             timerRelaxedMessage.style.display = 'none';
@@ -2280,6 +3086,7 @@
             saveSettings(appSettings);
             updateDevModeUI();
             applyChildNameUI();
+            updateSetupScreen();
             renderSettingsPanel();
             document.getElementById('appTitle').addEventListener('click', handleAppTitleTap);
             document.getElementById('saveSettingsButton').addEventListener('click', closeSettingsScreen);
