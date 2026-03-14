@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+  <!-- Sneaker shoe -->
+  <path d="M2 15 L2 18 C2 19 3 20 4 20 L20 20 C21 20 22 19 22 18 L22 16 C22 14 20 13 18 13 L14 13 L12 8 C12 8 10 7 8 8 L6 10 L4 12 C3 13 2 14 2 15 Z"/>
+  <!-- Shoe opening -->
+  <ellipse cx="8" cy="11" rx="3" ry="2" opacity="0.3"/>
+  <!-- Lace detail -->
+  <line x1="10" y1="12" x2="13" y2="12" stroke="currentColor" stroke-width="1" opacity="0.3"/>
+  <line x1="10" y1="14" x2="14" y2="14" stroke="currentColor" stroke-width="1" opacity="0.3"/>
+</svg>

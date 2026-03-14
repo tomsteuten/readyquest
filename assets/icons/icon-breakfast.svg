@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+  <!-- Bowl with steam -->
+  <path d="M2 12 C2 17 6 20 12 20 C18 20 22 17 22 12 L2 12 Z"/>
+  <ellipse cx="12" cy="12" rx="10" ry="3"/>
+  <!-- Steam lines -->
+  <path d="M8 6 Q9 4 8 2" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M12 7 Q13 5 12 3" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M16 6 Q17 4 16 2" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+</svg>
