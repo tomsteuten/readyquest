@@ -209,6 +209,7 @@
             overflow: hidden;
             box-sizing: border-box;
             background: linear-gradient(135deg, #FF9A9E 0%, #FAD0C4 50%, #FBC2EB 100%);
+            transition: background 1s linear;
         }
 
         .game-screen::before,
@@ -504,6 +505,30 @@
             animation: mascotBreathe 3s ease-in-out infinite;
             background: transparent;
             transform-origin: center bottom;
+        }
+
+        .mascot-container.is-celebrating {
+            animation: mascot-celebrate-jump 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .mascot-container.is-thinking {
+            animation: mascot-thinking 1.5s ease-in-out;
+        }
+
+        .mascot-container.is-focused {
+            animation: mascotBreathe 1.5s ease-in-out infinite; /* Faster breathing */
+        }
+
+        @keyframes mascot-celebrate-jump {
+            0% { transform: scaleY(1) translateY(0); }
+            50% { transform: scaleY(0.9) translateY(-20px) rotate(5deg); }
+            100% { transform: scaleY(1) translateY(0); }
+        }
+
+        @keyframes mascot-thinking {
+            0%, 100% { transform: scaleY(1) rotate(0deg); }
+            30% { transform: scaleY(1.02) rotate(-4deg); }
+            70% { transform: scaleY(1.02) rotate(4deg); }
         }
 
         .mascot-img {
@@ -812,7 +837,7 @@
             border-radius: 20px;
             cursor: pointer;
             position: fixed;
-            bottom: 24px;
+            bottom: max(54px, calc(24px + env(safe-area-inset-bottom, 0px)));
             left: 50%;
             top: auto;
             transform: translateX(-50%);
@@ -834,6 +859,22 @@
                 transform 0.1s ease,
                 box-shadow 0.1s ease;
         }
+
+            .action-hint {
+                position: fixed;
+                left: 50%;
+                bottom: max(14px, env(safe-area-inset-bottom, 0px));
+                transform: translateX(-50%);
+                width: calc(100% - 48px);
+                max-width: 420px;
+                text-align: center;
+                font-size: 15px;
+                font-weight: 700;
+                color: rgba(255, 255, 255, 0.95);
+                text-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+                z-index: 19;
+                pointer-events: none;
+            }
 
         .action-button:active {
             transform: translateX(-50%) translateY(4px);
@@ -1339,7 +1380,7 @@
         .toast-notification {
             position: fixed;
             left: 50%;
-            bottom: 24px;
+            bottom: max(86px, calc(56px + env(safe-area-inset-bottom, 0px)));
             transform: translateX(-50%) translateY(16px);
             padding: 12px 18px;
             border-radius: 14px;
@@ -1436,10 +1477,13 @@
         }
 
         .toggle-switch {
+            appearance: none;
+            -webkit-appearance: none;
             width: 52px;
             height: 28px;
             background: #ccc;
             border-radius: 14px;
+            border: none;
             position: relative;
             cursor: pointer;
             transition: background 0.2s ease;
@@ -1464,6 +1508,12 @@
 
         .toggle-switch.active::after {
             transform: translateX(24px);
+        }
+
+        button:focus-visible,
+        .toggle-switch:focus-visible {
+            outline: 3px solid rgba(255, 107, 53, 0.5);
+            outline-offset: 3px;
         }
 
         .settings-field:last-child {
@@ -1500,6 +1550,37 @@
             border: 1px solid rgba(255, 107, 53, 0.12);
             border-radius: 18px;
             padding: 14px;
+        }
+
+        .settings-task-row {
+            position: relative;
+            padding-left: 32px; /* Space for handle */
+            transition: background-color 0.2s ease;
+        }
+
+        .drag-handle {
+            position: absolute;
+            left: 0px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: grab;
+            color: #c5a68a;
+            padding: 10px;
+        }
+
+        .settings-task-row.dragging {
+            opacity: 0.5;
+            background: #fff0e0;
+        }
+
+        .settings-task-row.drag-over-top::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #ff6b35;
+            top: -4px;
         }
 
         .settings-task-head {
@@ -1556,7 +1637,7 @@
         <h1 class="app-title" id="appTitle">ReadyQuest</h1>
         <div class="setup-streak" id="setupStreak"></div>
         <button class="setup-button" onclick="startMorning()"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;display:inline-block;margin-right:6px"><circle cx="12" cy="14" r="5" fill="#FFD700"/><path d="M12 3v3M4.22 7.22l2.12 2.12M1 14h3M4.22 20.78l2.12-2.12M12 25v-3M19.78 20.78l-2.12-2.12M23 14h-3M19.78 7.22l-2.12 2.12" stroke="#FF8C00" stroke-width="2" stroke-linecap="round"/><path d="M2 19h20" stroke="#FF6B35" stroke-width="2" stroke-linecap="round"/></svg> Start Morning!</button>
-        <div class="settings-trigger-tooltip" id="settingsTriggerTooltip">Hold to open...</div>
+        <div class="settings-trigger-tooltip" id="settingsTriggerTooltip">Tap to open settings</div>
         <button class="settings-trigger" id="settingsTrigger" type="button" aria-label="Open settings">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.18 7.18 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.58.22-1.12.53-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.13.22.39.31.6.22l2.39-.96c.51.41 1.05.72 1.63.94l.36 2.54c.04.24.25.42.5.42h3.84c.25 0 .46-.18.5-.42l.36-2.54c.58-.22 1.12-.53 1.63-.94l2.39.96c.22.09.47 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7Z" fill="currentColor"/></svg>
         </button>
@@ -1588,7 +1669,7 @@
             </div>
             <div class="settings-toggle-row">
                 <span>Sound Effects</span>
-                <div id="soundToggle" class="toggle-switch active" onclick="toggleSound()"></div>
+                <button id="soundToggle" class="toggle-switch active" type="button" onclick="toggleSound()" aria-label="Toggle sound effects" aria-pressed="true"></button>
             </div>
         </div>
 
@@ -1628,6 +1709,7 @@
             </div>
 
             <button class="action-button" id="actionButton" onclick="handleAction()">Tap to Start</button>
+            <div class="action-hint" id="actionHint">Next: Tap to begin this task.</div>
             
             <div class="error-message" id="errorMessage" style="display: none;"></div>
 
@@ -1830,13 +1912,14 @@
         }
 
         function buildDraftSettingsFromForm() {
-            const taskDrafts = defaultSettings.tasks.map((defaultTask) => {
-                const enabledInput = document.querySelector(`[data-task-enabled="${defaultTask.id}"]`);
-                const durationInput = document.querySelector(`[data-task-duration="${defaultTask.id}"]`);
+            const taskDrafts = appSettings.tasks.map((taskInOrder) => {
+                const defaultTask = defaultSettings.tasks.find((task) => task.id === taskInOrder.id) || taskInOrder;
+                const enabledInput = document.querySelector(`[data-task-enabled="${taskInOrder.id}"]`);
+                const durationInput = document.querySelector(`[data-task-duration="${taskInOrder.id}"]`);
                 const parsedDuration = parseInt(durationInput?.value, 10);
 
                 return {
-                    id: defaultTask.id,
+                    id: taskInOrder.id,
                     enabled: Boolean(enabledInput?.checked),
                     timerDuration: Number.isFinite(parsedDuration) && parsedDuration > 0
                         ? parsedDuration
@@ -1858,6 +1941,7 @@
             const soundToggle = document.getElementById('soundToggle');
             if (!soundToggle) return;
             soundToggle.classList.toggle('active');
+            soundToggle.setAttribute('aria-pressed', String(soundToggle.classList.contains('active')));
         }
 
         function updateTaskDurationPreview(taskId, seconds) {
@@ -1874,25 +1958,30 @@
             document.getElementById('mascotNameInput').value = appSettings.mascotName || 'Quinnja';
             document.getElementById('timerStyleSelect').value = getTimerStyle();
             document.getElementById('soundToggle').classList.toggle('active', isSoundEnabled());
+            document.getElementById('soundToggle').setAttribute('aria-pressed', String(isSoundEnabled()));
 
             taskList.innerHTML = '';
 
-            defaultSettings.tasks.forEach((defaultTask) => {
-                const taskSettings = getTaskSettings(defaultTask.id);
+            appSettings.tasks.forEach((taskInOrder) => {
+                const taskSettings = getTaskSettings(taskInOrder.id);
                 const row = document.createElement('div');
                 row.className = 'settings-task-row';
+                row.setAttribute('draggable', 'true');
+                row.dataset.taskId = taskInOrder.id;
+
                 row.innerHTML = `
+                    <div class="drag-handle" aria-label="Drag to reorder">⠿</div>
                     <div class="settings-task-head">
-                        <div class="settings-task-name">${getTaskLabel(defaultTask.id)}</div>
+                        <div class="settings-task-name">${getTaskLabel(taskInOrder.id)}</div>
                         <label class="settings-checkbox">
-                            <input type="checkbox" data-task-enabled="${defaultTask.id}" ${taskSettings.enabled ? 'checked' : ''}>
+                            <input type="checkbox" data-task-enabled="${taskInOrder.id}" ${taskSettings.enabled ? 'checked' : ''}>
                             Enabled
                         </label>
                     </div>
                     <div class="settings-field">
-                        <label class="settings-label" for="task-duration-${defaultTask.id}">Duration (seconds)</label>
-                        <input class="task-duration-input" id="task-duration-${defaultTask.id}" type="number" min="1" step="1" value="${taskSettings.timerDuration}" data-task-duration="${defaultTask.id}">
-                        <div class="task-duration-preview" data-task-preview="${defaultTask.id}">Preview: ${formatDuration(taskSettings.timerDuration)}</div>
+                        <label class="settings-label" for="task-duration-${taskInOrder.id}">Duration (seconds)</label>
+                        <input class="task-duration-input" id="task-duration-${taskInOrder.id}" type="number" min="1" step="1" value="${taskSettings.timerDuration}" data-task-duration="${taskInOrder.id}">
+                        <div class="task-duration-preview" data-task-preview="${taskInOrder.id}">Preview: ${formatDuration(taskSettings.timerDuration)}</div>
                     </div>
                 `;
                 taskList.appendChild(row);
@@ -1925,6 +2014,66 @@
         function openSettingsScreen() {
             renderSettingsPanel();
             switchScreen('settings-screen');
+        }
+
+        // --- Drag and Drop Logic ---
+        let draggedTaskId = null;
+
+        function handleDragStart(e) {
+            draggedTaskId = e.target.dataset.taskId;
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', draggedTaskId);
+            // Use a timeout to allow the browser to create the drag image before applying the class
+            setTimeout(() => {
+                e.target.classList.add('dragging');
+            }, 0);
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            draggedTaskId = null;
+            document.querySelectorAll('.settings-task-row').forEach(row => row.classList.remove('drag-over-top'));
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            const targetRow = e.target.closest('.settings-task-row');
+            if (!targetRow || targetRow.dataset.taskId === draggedTaskId) {
+                return;
+            }
+
+            const rect = targetRow.getBoundingClientRect();
+            const isAfter = e.clientY > rect.top + rect.height / 2;
+
+            document.querySelectorAll('.settings-task-row').forEach(row => row.classList.remove('drag-over-top'));
+            if (!isAfter) {
+                targetRow.classList.add('drag-over-top');
+            }
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            document.querySelectorAll('.settings-task-row').forEach(row => row.classList.remove('drag-over-top'));
+
+            const droppedOnTaskId = e.target.closest('.settings-task-row')?.dataset.taskId;
+            if (!droppedOnTaskId || droppedOnTaskId === draggedTaskId) return;
+
+            const draggedIndex = appSettings.tasks.findIndex(t => t.id === draggedTaskId);
+            let droppedOnIndex = appSettings.tasks.findIndex(t => t.id === droppedOnTaskId);
+
+            const rect = e.target.closest('.settings-task-row').getBoundingClientRect();
+            const isAfter = e.clientY > rect.top + rect.height / 2;
+
+            if (isAfter) {
+                droppedOnIndex++;
+            }
+
+            // Move the item
+            const [draggedItem] = appSettings.tasks.splice(draggedIndex, 1);
+            const effectiveDroppedOnIndex = appSettings.tasks.findIndex(t => t.id === droppedOnTaskId);
+            const newIndex = isAfter ? effectiveDroppedOnIndex + 1 : effectiveDroppedOnIndex;
+            appSettings.tasks.splice(newIndex, 0, draggedItem);
+            renderSettingsPanel();
         }
 
         function closeSettingsScreen() {
@@ -1972,7 +2121,7 @@
             {
                 id: "teeth",
                 title: "Brush Your Teeth!",
-                description: "Scan the START tag, brush for 60 seconds, then scan FINISHED",
+                description: "Scan START, brush until the timer is done, then scan FINISHED",
                 icon: "toothbrush",
                 propClass: "toothbrush",
                 validationType: "nfc_dual",
@@ -2077,10 +2226,14 @@
         function showNfcTroubleOptions() {
             stopNfcScan();
             const actionButton = document.getElementById('actionButton');
+            const actionHint = document.getElementById('actionHint');
             const troublePanel = document.getElementById('nfcTroublePanel');
             if (!actionButton || !troublePanel) return;
 
             actionButton.style.display = 'none';
+            if (actionHint) {
+                actionHint.style.display = 'none';
+            }
             troublePanel.style.display = 'block';
             troublePanel.classList.add('visible');
         }
@@ -2089,6 +2242,7 @@
             resetNfcFailCount();
 
             const actionButton = document.getElementById('actionButton');
+            const actionHint = document.getElementById('actionHint');
             const troublePanel = document.getElementById('nfcTroublePanel');
             const expectedAction = expectedNfcAction || (taskStarted ? 'finish' : 'start');
 
@@ -2099,15 +2253,12 @@
 
             if (actionButton) {
                 actionButton.style.display = '';
-                actionButton.classList.add('scanning');
-                if (expectedAction === 'start') {
-                    actionButton.innerHTML = getScanButtonHtml('Scan the tag!');
-                    actionButton.disabled = true;
-                } else {
-                    actionButton.innerHTML = getScanButtonHtml('Scan FINISHED Tag');
-                    actionButton.disabled = false;
-                }
             }
+            if (actionHint) {
+                actionHint.style.display = '';
+            }
+
+            setActionState(expectedAction === 'start' ? 'nfc-start-scan' : 'nfc-finish-active');
 
             startNfcScan(expectedAction);
         }
@@ -2117,6 +2268,7 @@
             resetNfcFailCount();
 
             const actionButton = document.getElementById('actionButton');
+            const actionHint = document.getElementById('actionHint');
             const troublePanel = document.getElementById('nfcTroublePanel');
             if (troublePanel) {
                 troublePanel.classList.remove('visible');
@@ -2125,10 +2277,12 @@
 
             if (actionButton) {
                 actionButton.style.display = '';
-                actionButton.classList.remove('scanning');
-                actionButton.disabled = false;
-                actionButton.textContent = taskStarted ? 'Tap when Done!' : 'Tap to Start';
             }
+            if (actionHint) {
+                actionHint.style.display = '';
+            }
+
+            setActionState(taskStarted ? 'tap-finish' : 'tap-start');
 
             showToast('Tap mode enabled for this session');
         }
@@ -2218,6 +2372,13 @@
             setTimeout(showTask, 1000);
         }
 
+        function lerp(a, b, t) {
+            return a + (b - a) * t;
+        }
+
+        const mascot = document.querySelector('.mascot-container');
+
+
         // TASK DISPLAY
         function showTask() {
             const activeTasks = getEnabledTasks();
@@ -2233,6 +2394,14 @@
                 }, 300);
             }
 
+            if (mascot) {
+                mascot.classList.remove('is-focused'); // from previous task
+                mascot.classList.add('is-thinking');
+                setTimeout(() => {
+                    if (mascot) mascot.classList.remove('is-thinking');
+                }, 1500);
+            }
+
             if (!task) {
                 finishMorning();
                 return;
@@ -2244,7 +2413,6 @@
             
             document.getElementById('taskTitle').textContent = task.title;
             document.getElementById('taskDescription').textContent = task.description;
-            document.getElementById('actionButton').textContent = task.buttonText;
             document.getElementById('errorMessage').style.display = 'none';
             renderTimerValue(timerDisplay, task.timerDuration || 60, task.timerDuration || 60);
             timerContainer.style.display = 'none';
@@ -2279,8 +2447,7 @@
             document.querySelector('.prop.' + task.propClass).classList.add('visible');
             
             // Reset button
-            document.getElementById('actionButton').disabled = false;
-            document.getElementById('actionButton').classList.remove('timer-done');
+            setActionState(isDevModeEnabled() ? 'tap-start' : 'nfc-start-ready');
             
             // Play instruction audio
             playAudio('instruction', getTaskAudioIndex(task.id));
@@ -2599,12 +2766,77 @@
             return `${nfcScanButtonIcon}${labelText}`;
         }
 
+        function setActionHint(message) {
+            const actionHint = document.getElementById('actionHint');
+            if (!actionHint) return;
+            actionHint.style.display = '';
+            actionHint.textContent = message;
+        }
+
+        function setActionState(state, options = {}) {
+            const button = document.getElementById('actionButton');
+            if (!button) return;
+
+            let label = 'Tap to Start';
+            let hint = 'Next: Tap to begin this task.';
+            let useScanIcon = false;
+            let isScanning = false;
+            let isDisabled = false;
+
+            switch (state) {
+                case 'tap-start':
+                    label = 'Tap to Start';
+                    hint = 'Next: Tap to begin this task.';
+                    break;
+                case 'tap-finish':
+                    label = 'Tap when Done';
+                    hint = 'Next: Tap when the task is complete.';
+                    break;
+                case 'nfc-start-ready':
+                    label = 'Scan START Tag';
+                    hint = 'Next: Scan the START tag to begin.';
+                    useScanIcon = true;
+                    break;
+                case 'nfc-start-scan':
+                    label = 'Scan START Tag';
+                    hint = 'Next: Hold the START tag near this device.';
+                    useScanIcon = true;
+                    isScanning = true;
+                    isDisabled = true;
+                    break;
+                case 'nfc-finish-active':
+                    label = 'Scan FINISHED Tag';
+                    hint = 'Next: Keep going, then scan FINISHED when the timer ends.';
+                    useScanIcon = true;
+                    isScanning = true;
+                    break;
+                case 'nfc-finish-ready':
+                    label = 'Scan FINISHED Tag';
+                    hint = 'Next: Scan the FINISHED tag now.';
+                    useScanIcon = true;
+                    isScanning = true;
+                    break;
+                default:
+                    break;
+            }
+
+            if (useScanIcon) {
+                button.innerHTML = getScanButtonHtml(label);
+            } else {
+                button.textContent = label;
+            }
+
+            button.disabled = options.disabled ?? isDisabled;
+            button.classList.toggle('scanning', options.scanning ?? isScanning);
+            button.classList.toggle('timer-done', Boolean(options.timerDone));
+            setActionHint(hint);
+        }
+
         async function handleAction() {
             await handleTimedTask();
         }
 
         function handleTimedTask() {
-            const button = document.getElementById('actionButton');
             const task = getEnabledTasks()[currentTaskIndex];
 
             if (!task) {
@@ -2630,9 +2862,7 @@
             // NFC MODE: Initiate scan
             if (!taskStarted) {
                 // Need to scan START tag
-                button.innerHTML = getScanButtonHtml('Scan the tag!');
-                button.classList.add('scanning');
-                button.disabled = true;
+                setActionState('nfc-start-scan');
                 startNfcScan('start');
             } else {
                 // Need to scan FINISH tag - scanning should already be active
@@ -2640,6 +2870,7 @@
                 if (!nfcScanActive) {
                     startNfcScan('finish');
                 }
+                setActionState('nfc-finish-active');
                 showToast('Scan the FINISHED tag');
             }
         }
@@ -2651,6 +2882,11 @@
             const taskCard = document.getElementById('taskCard');
             showCelebration();
             
+            if (mascot) {
+                mascot.classList.remove('is-focused');
+            }
+            document.querySelector('.game-screen').style.background = '';
+
             setTimeout(() => {
                 currentTaskIndex++;
                 
@@ -2681,6 +2917,11 @@
             emoji.className = 'celebration';
             emoji.innerHTML = '<svg width="80" height="80" viewBox="0 0 24 24" style="display:block;margin:auto"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#FFD700" stroke="#FF8C00" stroke-width=".5"/></svg>';
             card.appendChild(emoji);
+
+            if (mascot) {
+                mascot.classList.add('is-celebrating');
+                setTimeout(() => mascot.classList.remove('is-celebrating'), 600);
+            }
             
             setTimeout(() => emoji.remove(), 600);
         }
@@ -2723,6 +2964,8 @@
                     : "You're all ready for school!";
             }
             
+            document.querySelector('.game-screen').style.background = '';
+
             playAudio('completion');
             switchScreen('completion-screen');
             
@@ -2764,6 +3007,10 @@
             const actionButton = document.getElementById('actionButton');
             if (actionButton) {
                 actionButton.style.display = '';
+                actionButton.classList.remove('scanning');
+            }
+            if (mascot) {
+                mascot.className = 'mascot-container';
                 actionButton.classList.remove('scanning');
             }
             resetNfcFailCount();
@@ -2984,23 +3231,24 @@
         }
 
         function startTaskTimer() {
-            const button = document.getElementById('actionButton');
             const timerContainer = document.getElementById('timerContainer');
             const timerDisplay = document.getElementById('timerDisplay');
             const timerRelaxedMessage = document.getElementById('timerRelaxedMessage');
             const task = getEnabledTasks()[currentTaskIndex];
             
+            if (mascot) {
+                mascot.classList.remove('is-thinking');
+                mascot.classList.add('is-focused');
+            }
+
             if (!task) return;
             
             taskStarted = true;
             if (isDevModeEnabled()) {
-                button.textContent = 'Tap when Done!';
-                button.classList.remove('scanning');
+                setActionState('tap-finish');
             } else {
-                button.innerHTML = getScanButtonHtml('Scan FINISHED Tag');
-                button.classList.add('scanning');
+                setActionState('nfc-finish-active');
             }
-            button.disabled = false;
             const timerStyle = getTimerStyle();
             timerContainer.style.display = 'block';
             timerDisplay.classList.remove('timer-complete');
@@ -3017,6 +3265,13 @@
             let timeLeft = duration;
             let elapsed = 0;
             renderTimerValue(timerDisplay, timerStyle === 'countup' ? elapsed : timeLeft, duration);
+
+            const gameScreen = document.querySelector('.game-screen');
+            const startColor1 = [168, 177, 255]; // #a8b1ff
+            const startColor2 = [251, 194, 235]; // #fbc2eb
+            const endColor1 = [255, 203, 142];   // #ffcb8e
+            const endColor2 = [255, 154, 158];   // #ff9a9e
+
             updateProgressBar(0, duration);
             
             taskTimer = setInterval(() => {
@@ -3025,19 +3280,26 @@
                 const currentTimerStyle = getTimerStyle();
                 renderTimerValue(timerDisplay, currentTimerStyle === 'countup' ? elapsed : timeLeft, duration);
                 updateProgressBar(elapsed, duration);
+
+                const percent = Math.min(elapsed / duration, 1);
+                const r1 = Math.round(lerp(startColor1[0], endColor1[0], percent));
+                const g1 = Math.round(lerp(startColor1[1], endColor1[1], percent));
+                const b1 = Math.round(lerp(startColor1[2], endColor1[2], percent));
+                const r2 = Math.round(lerp(startColor2[0], endColor2[0], percent));
+                const g2 = Math.round(lerp(startColor2[1], endColor2[1], percent));
+                const b2 = Math.round(lerp(startColor2[2], endColor2[2], percent));
+                gameScreen.style.background = `linear-gradient(135deg, rgb(${r1},${g1},${b1}), rgb(${r2},${g2},${b2}))`;
+
                 timerDisplay.classList.toggle('timer-complete', currentTimerStyle === 'countup' && elapsed >= duration);
                 
                 if (timeLeft <= 0) {
                     clearInterval(taskTimer);
                     taskTimer = null;
                     if (isDevModeEnabled()) {
-                        button.textContent = 'Tap when Done!';
-                        button.classList.remove('scanning');
+                        setActionState('tap-finish', { timerDone: true });
                     } else {
-                        button.innerHTML = getScanButtonHtml('Scan FINISHED Tag');
-                        button.classList.add('scanning');
+                        setActionState('nfc-finish-ready', { timerDone: true });
                     }
-                    button.classList.add('timer-done');
                     const finalTimerStyle = getTimerStyle();
                     renderTimerValue(timerDisplay, finalTimerStyle === 'countup' ? duration : 0, duration);
                     timerDisplay.classList.toggle('timer-complete', finalTimerStyle === 'countup');
@@ -3056,6 +3318,7 @@
                 showToast('Keep going! Timer still running.');
                 // Restart scan for finish tag
                 startNfcScan('finish');
+                setActionState('nfc-finish-active');
                 return;
             }
             
@@ -3066,6 +3329,7 @@
             document.getElementById('timerProgressBar')?.classList.remove('complete');
             document.getElementById('timerProgressFill').style.width = '0%';
             const timerDisplay = document.getElementById('timerDisplay');
+            document.querySelector('.game-screen').style.background = '';
             const timerRelaxedMessage = document.getElementById('timerRelaxedMessage');
             timerRelaxedMessage.style.display = 'none';
             timerDisplay.style.display = 'block';
@@ -3097,6 +3361,14 @@
             ['mouseup', 'mouseleave', 'touchend', 'touchcancel'].forEach((eventName) => {
                 settingsTrigger.addEventListener(eventName, cancelSettingsHold);
             });
+            const settingsTaskList = document.getElementById('settingsTaskList');
+            if (settingsTaskList) {
+                settingsTaskList.addEventListener('dragstart', handleDragStart);
+                settingsTaskList.addEventListener('dragend', handleDragEnd);
+                settingsTaskList.addEventListener('dragover', handleDragOver);
+                settingsTaskList.addEventListener('drop', handleDrop);
+            }
+
             settingsTrigger.addEventListener('click', (event) => {
                 event.preventDefault();
                 if (settingsOpenedFromHold) {
@@ -3104,6 +3376,7 @@
                     return;
                 }
                 cancelSettingsHold();
+                openSettingsScreen();
             });
             document.getElementById('streakDisplay').textContent = getStreak();
         });
